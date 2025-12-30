@@ -14,14 +14,19 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressContentEditableWarning>
       <body className="min-h-screen bg-black text-white antialiased">
-          <SplashLoader />
-          <Navbar />
-          <main className="pt-16">{children}</main>
-          <Footer />
+        <SplashLoader />
+        <Navbar />
+        <main className="pt-16">{children}</main>
+        <Footer />
 
-          {/* extras */}
-          <StickyCTA />
-          <ScrollToTop />
+        {/* extras */}
+        <StickyCTA
+          whatsappNumber="919919371299"
+          email="mukuljaiswal282@gmail.com"
+          defaultMessage="Hi Mukul, I want to build a premium website. Please share details."
+          showCall={false}
+        />
+        <ScrollToTop />
       </body>
     </html>
   );
