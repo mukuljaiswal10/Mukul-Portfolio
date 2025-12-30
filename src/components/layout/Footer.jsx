@@ -17,6 +17,7 @@ export default function Footer() {
           <SocialLinks />
         </div>
       </Container>
+      <div className="h-[90px] md:hidden"></div>
     </footer>
   );
 }
