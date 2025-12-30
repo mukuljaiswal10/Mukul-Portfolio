@@ -12,7 +12,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressContentEditableWarning>
       <body className="min-h-screen bg-black text-white antialiased">
           <SplashLoader />
           <Navbar />

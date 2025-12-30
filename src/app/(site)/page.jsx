@@ -12,7 +12,7 @@ export default function HomePage() {
       <Hero />
       <AboutSection />
       <SkillsSection />
-      <ProjectsSection />
+      <ProjectsSection limit={2} showViewAll/>
       <TestimonialsSection />
       <FaqSection/>
       <ContactSection />

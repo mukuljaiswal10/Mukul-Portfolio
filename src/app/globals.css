@@ -29,9 +29,320 @@ html {
   scroll-behavior: smooth;
 }
 
-/* subtle nicer selection */
-::selection {
-  background: rgba(255, 255, 255, 0.2);
+@keyframes shineSweep {
+  0% {
+    transform: translateX(-140%) skewX(-18deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: translateX(140%) skewX(-18deg);
+    opacity: 0;
+  }
 }
 
+.shine-sweep {
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.06) 30%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 255, 255, 0.06) 70%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  animation: shineSweep 1.2s ease-out 0.35s 1 both;
+}
 
+@keyframes glowLine {
+  0% {
+    transform: translateX(-140%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(140%);
+    opacity: 0;
+  }
+}
+
+.glow-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 6px;
+
+  /* default (desktop) intensity */
+  --base: 0.22;
+  --shine: 0.95;
+  --blur: 6px;
+  --speed: 1.6s;
+  --hoverBase: 0.34;
+  --hoverBlur: 10px;
+}
+
+.glow-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, var(--base));
+  transition: background 0.25s ease;
+}
+
+.glow-underline::before {
+  content: "";
+  position: absolute;
+  left: -30%;
+  right: -30%;
+  bottom: 0px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 25%,
+    rgba(255, 255, 255, var(--shine)) 50%,
+    rgba(255, 255, 255, 0.1) 75%,
+    transparent 100%
+  );
+  filter: blur(var(--blur));
+  animation: glowLine var(--speed) ease-in-out infinite;
+  transition: filter 0.25s ease;
+}
+
+/* hover boost (desktop only) */
+@media (hover: hover) and (pointer: fine) {
+  .glow-underline:hover {
+    --blur: var(--hoverBlur);
+    --base: var(--hoverBase);
+  }
+}
+
+/* mobile: softer, slower */
+@media (max-width: 640px) {
+  .glow-underline {
+    --base: 0.16;
+    --shine: 0.75;
+    --blur: 5px;
+    --speed: 2.1s;
+    --hoverBase: 0.16;
+    --hoverBlur: 5px;
+  }
+}
+
+/* stagger shimmer on letters */
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-140%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(140%);
+    opacity: 0;
+  }
+}
+
+.shimmer-word {
+  display: inline-flex;
+  gap: 0.02em;
+}
+
+.shimmer-letter {
+  position: relative;
+  display: inline-block;
+}
+
+.shimmer-letter::after {
+  content: "";
+  position: absolute;
+  top: -0.1em;
+  bottom: -0.08em;
+  left: -25%;
+  right: -25%;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 70%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  opacity: 0;
+  transform: translateX(-140%);
+  animation: shimmerSweep 2.4s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .shimmer-letter::after {
+    filter: blur(8px);
+    animation-duration: 2.9s;
+    opacity: 0.8;
+  }
+}
+
+@keyframes mj-glow-move {
+  0% {
+    transform: translateX(-30%);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(30%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-30%);
+    opacity: 0.35;
+  }
+}
+
+.glow-underline {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.08em;
+}
+
+.glow-underline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.02em;
+  height: 2px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 0.9;
+}
+
+.glow-underline::after {
+  content: "";
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: 0.01em;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.95),
+    transparent
+  );
+  filter: blur(6px);
+  animation: mj-glow-move 2.2s ease-in-out infinite;
+}
+
+/* --- 3D Hero Text --- */
+.hero3d {
+  --mx: 0;
+  --my: 0;
+  --rx: 0;
+  --ry: 0;
+  position: relative;
+  display: inline-block;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@media (pointer: fine) and (min-width: 768px) {
+  .hero3d {
+    transform: perspective(1100px) rotateX(calc(var(--rx) * 1deg))
+      rotateY(calc(var(--ry) * 1deg));
+    transition: transform 200ms ease;
+  }
+}
+
+.hero3d__base {
+  position: relative;
+  z-index: 3;
+  /* bevel + depth shadow */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 0 rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.55);
+}
+
+.hero3d__depth {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  color: rgba(255, 255, 255, 0.14);
+  transform: translate3d(calc(var(--mx) * -1px), calc(var(--my) * -1px), -2px);
+  filter: blur(0.3px);
+}
+
+.hero3d__glow {
+  position: absolute;
+  inset: -0.05em;
+  z-index: 0;
+  color: rgba(255, 255, 255, 0.18);
+  transform: translate3d(calc(var(--mx) * 1px), calc(var(--my) * 1px), -4px);
+  filter: blur(12px);
+  opacity: 0.55;
+}
+
+/* reduce motion users */
+@media (prefers-reduced-motion: reduce) {
+  .hero3d {
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero3d__depth,
+  .hero3d__glow {
+    display: none;
+  }
+}
+
+/* premium animated glow line */
+.glow-line {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.75),
+    transparent
+  );
+  background-size: 220% 100%;
+  animation: glowSweep 2.4s ease-in-out infinite;
+  filter: blur(0.2px);
+  opacity: 0.65;
+}
+
+@keyframes glowSweep {
+  0% {
+    background-position: 220% 0;
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    background-position: -220% 0;
+    opacity: 0.35;
+  }
+}
+
+/* mobile intensity low (classy) */
+@media (max-width: 640px) {
+  .glow-line {
+    opacity: 0.45;
+  }
+}
