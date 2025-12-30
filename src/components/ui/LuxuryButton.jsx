@@ -23,7 +23,7 @@ export default function LuxuryButton({
   href,
   children,
   variant = "primary", // "primary" | "outline"
-  className = "",
+  className ="",
   ...props
 }) {
   const [burst, setBurst] = useState(null);

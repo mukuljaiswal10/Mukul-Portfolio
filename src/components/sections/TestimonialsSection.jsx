@@ -1139,7 +1139,7 @@ export default function TestimonialsSection() {
             <SectionHeading
               eyebrow="Testimonials"
               title="What clients say"
-              desc="Infinite loop • rubber-band edges • follow-finger drag."
+              // desc="Infinite loop • rubber-band edges • follow-finger drag."
             />
           </Reveal>
         </Parallax>
@@ -1219,7 +1219,7 @@ export default function TestimonialsSection() {
           <div className="mt-6 flex items-center justify-between">
             <button
               onClick={() => go("prev")}
-              className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
+              className="cursor-pointer rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
             >
               ← Prev
             </button>
@@ -1251,7 +1251,7 @@ export default function TestimonialsSection() {
 
             <button
               onClick={() => go("next")}
-              className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
+              className="cursor-pointer rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
             >
               Next →
             </button>
