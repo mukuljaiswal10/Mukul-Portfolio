@@ -6,6 +6,7 @@ import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import { faqs } from "@/data/faqs";
+import LuxuryButton from "../ui/LuxuryButton";
 
 function Chevron({ open }) {
   return (
@@ -121,10 +122,12 @@ export default function FaqSection() {
                   Ping me — I’ll suggest the best plan for your scope.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-3">
-                  <Button href="/contact">Contact Me</Button>
-                  <Button href="/services" variant="outline">
+                  {/* <Button href="/contact">Contact Me</Button> */}
+                  <LuxuryButton href="/contact" variant="primary">Contact Me</LuxuryButton>
+                  {/* <Button href="/services" variant="outline">
                     View Services
-                  </Button>
+                  </Button> */}
+                  <LuxuryButton href="/services" variant="outline">View Services</LuxuryButton>
                 </div>
               </div>
             </Reveal>

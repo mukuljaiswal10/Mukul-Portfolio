@@ -9,6 +9,7 @@ import Container from "@/components/ui/Container";
 import Button from "@/components/ui/Button";
 import { navLinks } from "@/data/navLinks";
 import { motion, AnimatePresence } from "framer-motion";
+import LuxuryButton from "../ui/LuxuryButton";
 
 function AnimatedHamburger({ open }) {
   return (
@@ -201,7 +202,8 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {/* Desktop */}
           <div className="hidden md:flex items-center gap-2">
-            <Button href="/contact">Hire Me</Button>
+            {/* <Button href="/contact">Hire Me</Button> */}
+            <LuxuryButton href={"/contact"} variant="primary">Hire Me</LuxuryButton>
           </div>
 
           {/* Mobile theme toggle */}

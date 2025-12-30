@@ -121,7 +121,7 @@
 "use client";
 
 import Container from "@/components/ui/Container";
-import Button from "@/components/ui/Button";
+// import Button from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
@@ -129,6 +129,8 @@ import HeroPortrait from "@/components/sections/HeroPortrait";
 import { motion } from "framer-motion";
 import ShimmerText from "@/components/ui/ShimmerText";
 import Text3D from "@/components/ui/Text3D";
+import StatCard from "@/components/ui/StatCard";
+import LuxuryButton from "@/components/ui/LuxuryButton";
 
 export default function Hero() {
   return (
@@ -147,7 +149,6 @@ export default function Hero() {
               <Reveal>
                 <Badge>Full Stack • WordPress</Badge>
               </Reveal>
-
               {/* Premium heading reveal + shimmer + glow underline */}
               <motion.h1
                 className="relative mt-4 max-w-[22ch] text-4xl font-bold leading-[1.06] tracking-tight md:text-6xl"
@@ -169,7 +170,6 @@ export default function Hero() {
                   <ShimmerText text="modern" /> <ShimmerText text="websites." />
                 </Text3D>
               </motion.h1>
-
               <Reveal delay={0.14}>
                 <p className="mt-5 text-muted/70 md:text-lg">
                   “I build premium, high-performance web apps with a sharp eye
@@ -177,30 +177,27 @@ export default function Hero() {
                   Node/Express & MongoDB. 🚀✨”
                 </p>
               </Reveal>
-
               <Reveal delay={0.2}>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Button href="/projects">View Projects</Button>
+                  {/* <Button href="/projects">View Projects</Button>
                   <Button href="/contact" variant="outline">
                     Contact Me
-                  </Button>
+                  </Button> */}
+                  <LuxuryButton href="/projects" variant="primary">
+                    View Projects
+                  </LuxuryButton>
+                  <LuxuryButton href="/contact" variant="outline">
+                    Contact Me
+                  </LuxuryButton>
                 </div>
               </Reveal>
-
-              <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {[
-                  { k: "10+", v: "Projects" },
-                  { k: "Fast", v: "Performance" },
-                  { k: "Responsive", v: "All devices" },
-                ].map((s, i) => (
-                  <Reveal key={s.v} delay={0.25 + i * 0.08}>
-                    <div className="rounded-2xl border border-border/10 bg-foreground/[0.03] p-4">
-                      <p className="text-xl font-bold text-foreground">{s.k}</p>
-                      <p className="text-sm text-muted/70">{s.v}</p>
-                    </div>
-                  </Reveal>
-                ))}
+              {/* 3 box */}
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <StatCard value="10+" label="Projects" />
+                <StatCard value="Fast" label="Performance" />
+                <StatCard value="Responsive" label="All devices" />
               </div>
+              {/* end */}
             </div>
           </Parallax>
 

@@ -1155,6 +1155,7 @@ import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
 import TiltCard from "@/components/ui/TiltCard";
 import { blurDataURL } from "@/lib/blur";
+import LuxuryButton from "../ui/LuxuryButton";
 
 function ProjectCard({ p, i }) {
   return (
@@ -1550,7 +1551,8 @@ export default function ProjectsSection({
         {showViewAll ? (
           <Reveal delay={0.25}>
             <div className="mt-8">
-              <Button href="/projects">View all projects →</Button>
+              {/* <Button href="/projects">View all projects →</Button> */}
+              <LuxuryButton href="/projects" variant="primary">View all projects →</LuxuryButton>
             </div>
           </Reveal>
         ) : null}

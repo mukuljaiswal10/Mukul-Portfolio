@@ -4,6 +4,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
+import LuxuryButton from "../ui/LuxuryButton";
 
 export default function AboutSection() {
   return (
@@ -30,12 +31,14 @@ export default function AboutSection() {
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Button href="/about" variant="outline">
+                {/* <Button href="/about" variant="outline">
                   Read More
-                </Button>
-                <Button href="/resume/Mukul-Jaiswal-Resume.pdf" variant="ghost">
+                </Button> */}
+                <LuxuryButton href="/about" variant="primary">Read More</LuxuryButton>
+                {/* <Button href="/resume/Mukul-Jaiswal-Resume.pdf" variant="ghost">
                   Download Resume →
-                </Button>
+                </Button> */}
+                <LuxuryButton href="/resume/Mukul-Jaiswal-Resume.pdf" variant="outline">Download Resume →</LuxuryButton>
               </div>
             </Card>
           </Reveal>
