@@ -1,0 +1,87 @@
+/// src/data/aiSuggestions.js
+
+export const aiSuggestions = [
+    {
+        id: "sug-timeline",
+        type: "section",
+        target: "experience",
+        title: "Work Timeline",
+        desc: "See my experience timeline — roles, stacks, and highlights.",
+        cta: "Open Timeline",
+        icon: "🗓️",
+    },
+    {
+        id: "sug-projects",
+        type: "section",
+        target: "projects",
+        title: "Featured Projects",
+        desc: "Luxury UI projects — details, stacks, and live demos.",
+        cta: "View Projects",
+        icon: "🚀",
+    },
+    {
+        id: "sug-skills",
+        type: "section",
+        target: "skills",
+        title: "Skill Stack",
+        desc: "MERN + WordPress + UI engineering — everything I use daily.",
+        cta: "Open Skills",
+        icon: "🧠",
+    },
+    {
+        id: "sug-testimonials",
+        type: "section",
+        target: "testimonials",
+        title: "Client Feedback",
+        desc: "What clients say about my work quality and delivery.",
+        cta: "See Reviews",
+        icon: "⭐",
+    },
+    {
+        id: "sug-faq",
+        type: "section",
+        target: "faq",
+        title: "FAQs",
+        desc: "Timeline, pricing, revisions — quick answers here.",
+        cta: "Open FAQs",
+        icon: "❓",
+    },
+    {
+        id: "sug-contact",
+        type: "section",
+        target: "contact",
+        title: "Let’s Build Something",
+        desc: "Send your requirement — I reply within 24 hours.",
+        cta: "Contact Now",
+        icon: "💬",
+    },
+
+    // Optional: page navigation
+    {
+        id: "sug-all-projects",
+        type: "page",
+        target: "/projects",
+        title: "Browse All Projects",
+        desc: "Explore all builds in one place (filter + search).",
+        cta: "Open Projects Page",
+        icon: "📁",
+    },
+    {
+        id: "sug-all-skills",
+        type: "page",
+        target: "/skills",
+        title: "All Skills Page",
+        desc: "Complete skill list with categories.",
+        cta: "Open Skills Page",
+        icon: "📌",
+    },
+    {
+        id: "timeline",
+        type: "section",
+        target: "experience",
+        title: "Timeline / Experience",
+        desc: "Jump to my work timeline.",
+        cta: "Open",
+        icon: "🕒"
+    },
+];

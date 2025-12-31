@@ -24,7 +24,7 @@ export default function AboutPage() {
 
       <AboutSection />
       <SkillsSection />
-      <ExperienceSection />
+      <ExperienceSection id="experience"/>
     </>
   );
 }

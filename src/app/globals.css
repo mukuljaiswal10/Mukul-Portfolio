@@ -1,8 +1,35 @@
 @import "tailwindcss";
 
+/* =========================
+   PREMIUM THEME TOKENS
+========================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* base (dark premium by default) */
+  --background: #0b0f14; /* deep premium */
+  --foreground: #ece3d3; /* warm off-white */
+  --muted: #b7a78d; /* muted gold-ish */
+  --gold: #d8b25c; /* luxury gold */
+  --gold2: #b38326; /* deep gold */
+  --line: rgba(255, 255, 255, 0.1);
+
+  /* keep your inline theme mapping */
+}
+
+:root {
+  --background: #07080a;
+  --foreground: #e9eaee;
+
+  /* premium accent (soft, not bright) */
+  --gold: #d6b35a;
+  --gold-soft: rgba(214, 179, 90, 0.18);
+  --gold-border: rgba(214, 179, 90, 0.28);
+
+  /* button system */
+  --btn-bg: rgba(255, 255, 255, 0.04);
+  --btn-bg-hover: rgba(255, 255, 255, 0.06);
+  --btn-text: rgba(233, 234, 238, 0.88);
+  --btn-text-hover: rgba(233, 234, 238, 0.96);
+  --btn-border: rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
@@ -12,11 +39,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
+/* ✅ if user system prefers light, still keep premium (not pure white) */
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #f7f1e6;
+    --foreground: #1a1712;
+    --muted: #6a5b43;
+    --gold: #b38326;
+    --gold2: #8b641f;
+    --line: rgba(0, 0, 0, 0.1);
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -25,9 +61,56 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-html {
-  scroll-behavior: smooth;
+/* =========================
+   GLOBAL TYPOGRAPHY (ALL PAGES)
+   - Headings = Gold premium
+   - Paragraph = Warm off-white
+========================= */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--gold);
+  letter-spacing: -0.02em;
 }
+
+p,
+li,
+span,
+small,
+label {
+  color: var(--foreground);
+}
+
+.text-muted {
+  color: var(--muted);
+}
+
+/* ✅ Premium gold gradient (use class where you want hero luxury) */
+.text-gold-gradient {
+  background-image: linear-gradient(90deg, #f6ecc8, var(--gold), var(--gold2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ✅ Optional: luxury card helper */
+.lux-card {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.lux-border {
+  border-color: rgba(216, 178, 92, 0.22);
+}
+
+/* =========================
+   YOUR EXISTING ANIMATIONS
+   (kept same)
+========================= */
 
 @keyframes shineSweep {
   0% {
@@ -58,6 +141,11 @@ html {
   animation: shineSweep 1.2s ease-out 0.35s 1 both;
 }
 
+/* =========================
+   GLOW UNDERLINE (SINGLE VERSION)
+   ✅ FIXED: removed duplicate definitions
+   ✅ Premium: underline uses gold tint
+========================= */
 @keyframes glowLine {
   0% {
     transform: translateX(-140%);
@@ -97,7 +185,7 @@ html {
   bottom: 2px;
   height: 2px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, var(--base));
+  background: rgba(216, 178, 92, var(--base)); /* ✅ gold underline */
   transition: background 0.25s ease;
 }
 
@@ -112,9 +200,9 @@ html {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.1) 25%,
-    rgba(255, 255, 255, var(--shine)) 50%,
-    rgba(255, 255, 255, 0.1) 75%,
+    rgba(216, 178, 92, 0.1) 25%,
+    rgba(216, 178, 92, var(--shine)) 50%,
+    rgba(216, 178, 92, 0.1) 75%,
     transparent 100%
   );
   filter: blur(var(--blur));
@@ -134,7 +222,7 @@ html {
 @media (max-width: 640px) {
   .glow-underline {
     --base: 0.16;
-    --shine: 0.75;
+    --shine: 0.7;
     --blur: 5px;
     --speed: 2.1s;
     --hoverBase: 0.16;
@@ -142,7 +230,9 @@ html {
   }
 }
 
-/* stagger shimmer on letters */
+/* =========================
+   SHIMMER WORD (kept)
+========================= */
 @keyframes shimmerSweep {
   0% {
     transform: translateX(-140%);
@@ -181,9 +271,9 @@ html {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.55) 50%,
-    rgba(255, 255, 255, 0) 70%,
+    rgba(216, 178, 92, 0) 30%,
+    rgba(216, 178, 92, 0.55) 50%,
+    rgba(216, 178, 92, 0) 70%,
     transparent 100%
   );
   filter: blur(10px);
@@ -200,57 +290,6 @@ html {
     animation-duration: 2.9s;
     opacity: 0.8;
   }
-}
-
-@keyframes mj-glow-move {
-  0% {
-    transform: translateX(-30%);
-    opacity: 0.35;
-  }
-  50% {
-    transform: translateX(30%);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-30%);
-    opacity: 0.35;
-  }
-}
-
-.glow-underline {
-  position: relative;
-  display: inline-block;
-  padding-bottom: 0.08em;
-}
-
-.glow-underline::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.02em;
-  height: 2px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.55);
-  opacity: 0.9;
-}
-
-.glow-underline::after {
-  content: "";
-  position: absolute;
-  left: -10%;
-  right: -10%;
-  bottom: 0.01em;
-  height: 6px;
-  border-radius: 9999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.95),
-    transparent
-  );
-  filter: blur(6px);
-  animation: mj-glow-move 2.2s ease-in-out infinite;
 }
 
 /* --- 3D Hero Text --- */
@@ -276,16 +315,15 @@ html {
 .hero3d__base {
   position: relative;
   z-index: 3;
-  /* bevel + depth shadow */
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 2px 0 rgba(255, 255, 255, 0.14), 0 10px 30px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 1px 0 rgba(216, 178, 92, 0.2), 0 2px 0 rgba(216, 178, 92, 0.14),
+    0 10px 30px rgba(0, 0, 0, 0.55);
 }
 
 .hero3d__depth {
   position: absolute;
   inset: 0;
   z-index: 1;
-  color: rgba(255, 255, 255, 0.14);
+  color: rgba(216, 178, 92, 0.14);
   transform: translate3d(calc(var(--mx) * -1px), calc(var(--my) * -1px), -2px);
   filter: blur(0.3px);
 }
@@ -294,7 +332,7 @@ html {
   position: absolute;
   inset: -0.05em;
   z-index: 0;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(216, 178, 92, 0.18);
   transform: translate3d(calc(var(--mx) * 1px), calc(var(--my) * 1px), -4px);
   filter: blur(12px);
   opacity: 0.55;
@@ -317,7 +355,7 @@ html {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.75),
+    rgba(216, 178, 92, 0.75),
     transparent
   );
   background-size: 220% 100%;
@@ -366,3 +404,309 @@ html {
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.35));
 }
 
+/* =========================
+   PROSE PREMIUM WRAPPER
+   Use: class="prose-premium"
+========================= */
+
+.prose-premium {
+  color: var(--foreground);
+}
+
+.prose-premium :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+
+.prose-premium :where(h1) {
+  font-weight: 800;
+  line-height: 1.06;
+}
+
+.prose-premium :where(h2) {
+  font-weight: 800;
+  line-height: 1.12;
+}
+
+.prose-premium :where(h3, h4) {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.prose-premium :where(p, li) {
+  color: color-mix(in oklab, var(--foreground) 92%, white 8%);
+  line-height: 1.75;
+}
+
+.prose-premium :where(small) {
+  color: var(--muted);
+}
+
+.prose-premium :where(strong) {
+  color: color-mix(in oklab, var(--foreground) 82%, var(--gold) 18%);
+}
+
+.prose-premium :where(a) {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(216, 178, 92, 0.35);
+  transition: opacity 180ms ease, border-color 180ms ease;
+}
+
+.prose-premium :where(a:hover) {
+  opacity: 0.9;
+  border-color: rgba(216, 178, 92, 0.65);
+}
+
+.prose-premium :where(ul, ol) {
+  color: var(--foreground);
+}
+
+.prose-premium :where(blockquote) {
+  border-left: 2px solid rgba(216, 178, 92, 0.35);
+  padding-left: 14px;
+  color: color-mix(in oklab, var(--foreground) 80%, var(--gold) 20%);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.prose-premium :where(code) {
+  color: color-mix(in oklab, var(--foreground) 75%, var(--gold) 25%);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.15rem 0.45rem;
+}
+
+.prose-premium :where(hr) {
+  border-color: var(--line);
+}
+
+/* ✅ SUPER QUICK FIX (optional but powerful):
+   अगर बहुत जगह text-white लगा हुआ है और जल्दी premium करना है,
+   तो ये override 90% cases में तुरंत सही कर देगा.
+*/
+.prose-premium :is(.text-white) {
+  color: var(--foreground) !important;
+}
+.prose-premium :is(.text-white\/90) {
+  color: color-mix(in oklab, var(--foreground) 94%, white 6%) !important;
+}
+.prose-premium :is(.text-white\/80) {
+  color: color-mix(in oklab, var(--foreground) 88%, white 12%) !important;
+}
+.prose-premium :is(.text-white\/70) {
+  color: var(--muted) !important;
+}
+.prose-premium :is(.text-white\/60) {
+  color: color-mix(in oklab, var(--muted) 92%, white 8%) !important;
+}
+.prose-premium :is(.text-white\/50) {
+  color: color-mix(in oklab, var(--muted) 80%, white 20%) !important;
+}
+
+/* ================================
+   PREMIUM BUTTON SYSTEM (GLOBAL)
+   Add at the END of globals.css
+================================ */
+
+/* theme tokens */
+:root {
+  --mj-gold-1: #ffe7a3;
+  --mj-gold-2: #e9c86a;
+  --mj-gold-3: #b8892e;
+
+  --mj-surface: rgba(255, 255, 255, 0.06);
+  --mj-border: rgba(255, 255, 255, 0.14);
+  --mj-text: rgba(255, 255, 255, 0.92);
+  --mj-muted: rgba(255, 255, 255, 0.65);
+
+  --mj-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --mj-ring: 0 0 0 6px rgba(233, 200, 106, 0.12);
+}
+
+/* base button class */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  padding: 0.75rem 1.1rem;
+  border-radius: 9999px;
+
+  border: 1px solid var(--mj-border);
+  background: var(--mj-surface);
+  color: var(--mj-text);
+
+  box-shadow: var(--mj-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+
+  transition: transform 160ms ease, background 160ms ease,
+    border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0px);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--mj-shadow), var(--mj-ring);
+}
+
+/* primary / light button (fixes white invisible issue globally) */
+.btn-primary {
+  background: linear-gradient(
+    180deg,
+    var(--mj-gold-1),
+    var(--mj-gold-2),
+    var(--mj-gold-3)
+  );
+  border-color: rgba(255, 231, 163, 0.55);
+  color: #141414;
+  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.55),
+    0 10px 35px rgba(233, 200, 106, 0.18);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+/* outline button */
+.btn-outline {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(233, 200, 106, 0.45);
+  color: rgba(255, 231, 163, 0.92);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(233, 200, 106, 0.12);
+}
+
+.btn-outline:hover {
+  border-color: rgba(233, 200, 106, 0.7);
+  background: rgba(255, 231, 163, 0.06);
+}
+
+/* smaller size utility */
+.btn-sm {
+  padding: 0.6rem 0.95rem;
+  font-size: 0.85rem;
+}
+
+/* If any element has bg-white but sits on dark background -> auto make it premium */
+.dark .bg-white,
+body.bg-black .bg-white,
+body .bg-white[data-premium-btn],
+body .bg-white.premium-btn {
+  background: linear-gradient(
+    180deg,
+    var(--mj-gold-1),
+    var(--mj-gold-2),
+    var(--mj-gold-3)
+  ) !important;
+  color: #141414 !important;
+  border-color: rgba(255, 231, 163, 0.55) !important;
+}
+
+/* Optional: make outline borders look premium globally */
+body .border-white\/10 {
+  border-color: rgba(255, 231, 163, 0.16) !important;
+}
+
+/* ---------------------------
+   Premium Global Button System
+---------------------------- */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 18px;
+  border-radius: 16px;
+
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition: transform 180ms ease, background 220ms ease, color 220ms ease,
+    border-color 220ms ease, box-shadow 220ms ease;
+  user-select: none;
+}
+
+.btn:hover {
+  background: var(--btn-bg-hover);
+  color: var(--btn-text-hover);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(214, 179, 90, 0.22);
+}
+
+/* PRIMARY (subtle premium) */
+.btn-primary {
+  background: linear-gradient(
+      180deg,
+      rgba(214, 179, 90, 0.12),
+      rgba(214, 179, 90, 0.05)
+    ),
+    rgba(255, 255, 255, 0.03);
+  border-color: var(--gold-border);
+  color: rgba(255, 231, 163, 0.92);
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.38);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(
+      180deg,
+      rgba(214, 179, 90, 0.22),
+      rgba(214, 179, 90, 0.1)
+    ),
+    rgba(255, 255, 255, 0.04);
+  border-color: rgba(214, 179, 90, 0.42);
+  color: rgba(10, 10, 10, 0.92);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(214, 179, 90, 0.12);
+}
+
+/* OUTLINE (clean premium) */
+.btn-outline {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(214, 179, 90, 0.22);
+  color: rgba(233, 234, 238, 0.9);
+}
+
+.btn-outline:hover {
+  background: rgba(214, 179, 90, 0.1);
+  border-color: rgba(214, 179, 90, 0.38);
+  color: rgba(255, 231, 163, 0.96);
+}
+
+/* optional: small size */
+.btn-sm {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+}

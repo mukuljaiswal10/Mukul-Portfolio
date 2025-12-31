@@ -230,7 +230,10 @@ import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
 import LuxuryButton from "../ui/LuxuryButton";
 
-export default function AboutSection() {
+export default function AboutSection({id="about"}) {
+
+  
+
   const pathname = usePathname();
   const isAboutPage = pathname === "/about";
 
@@ -253,7 +256,8 @@ export default function AboutSection() {
   }, [open, isAboutPage]);
 
   return (
-    <section className="py-16">
+
+    <section id={id} className="py-16">
       <Container>
         <Parallax from={18} to={-18}>
           <Reveal>

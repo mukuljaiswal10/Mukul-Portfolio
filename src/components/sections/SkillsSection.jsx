@@ -153,7 +153,119 @@
 //   );
 // }
 
+// "use client";
+
+// import Container from "@/components/ui/Container";
+// import SectionHeading from "@/components/shared/SectionHeading";
+// import Card from "@/components/ui/Card";
+// import Reveal from "@/components/ui/Reveal";
+// import Parallax from "@/components/ui/Parallax";
+// import LuxuryButton from "@/components/ui/LuxuryButton";
+
+// import { skills } from "@/data/skills";
+
+// function SkillPill({ name, desc }) {
+//   return (
+//     <div className="group relative rounded-2xl border border-border/12 bg-foreground/[0.02] px-4 py-3 transition active:scale-[0.99]">
+//       {/* subtle hover glow */}
+//       <div className="pointer-events-none absolute -inset-10 opacity-0 blur-3xl transition duration-700 group-hover:opacity-70 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.12),transparent_55%)]" />
+//       <div className="relative flex items-center justify-between gap-3">
+//         <div className="min-w-0">
+//           <p className="truncate text-sm font-semibold text-foreground">
+//             {name}
+//           </p>
+//           <p className="mt-0.5 text-xs text-muted/70">{desc}</p>
+//         </div>
+//         <span className="h-2 w-2 shrink-0 rounded-full bg-foreground/35 transition group-hover:bg-foreground/70" />
+//       </div>
+//     </div>
+//   );
+// }
+
+// function SkillGroupCard({ g }) {
+//   const count = g.items?.length || 0;
+
+//   return (
+//     <Card className="relative overflow-hidden">
+//       <div className="relative p-5 sm:p-6">
+//         {/* premium border sheen */}
+//         <div className="pointer-events-none absolute -left-24 top-0 h-full w-24 rotate-12 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition duration-700 group-hover:opacity-100 group-hover:translate-x-[640px]" />
+
+//         <div className="flex items-start justify-between gap-4">
+//           <div className="min-w-0">
+//             <p className="text-lg font-semibold text-foreground">{g.title}</p>
+//             <p className="mt-1 text-sm text-muted/70">{g.subtitle}</p>
+//           </div>
+
+//           <span className="shrink-0 rounded-full border border-border/15 bg-foreground/[0.03] px-3 py-1 text-xs text-foreground/80 backdrop-blur">
+//             {count} Skills
+//           </span>
+//         </div>
+
+//         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+//           {g.items?.map((s) => (
+//             <SkillPill key={s.name} name={s.name} desc={s.desc} />
+//           ))}
+//         </div>
+//       </div>
+//     </Card>
+//   );
+// }
+
+// /**
+//  * props:
+//  * - limit: home pe kitne group cards dikhane (2)
+//  * - showViewAll: home pe button show
+//  * - compact: padding tweak
+//  */
+// export default function SkillsSection({
+//   limit,
+//   showViewAll = false,
+//   compact = false,
+// }) {
+//   const list = Array.isArray(skills) ? skills : [];
+//   const shown = typeof limit === "number" ? list.slice(0, limit) : list;
+
+//   return (
+//     <section className={compact ? "py-10" : "py-16"}>
+//       <Container>
+//         <Parallax from={16} to={-16}>
+//           <Reveal>
+//             <SectionHeading
+//               eyebrow="Skills"
+//               title="MERN + Modern Dev Stack"
+//               desc="Full-stack development with clean UI, strong backend logic, secure APIs, and modern tooling."
+//             />
+//           </Reveal>
+//         </Parallax>
+
+//         <div className="mt-8 grid gap-6 md:grid-cols-2">
+//           {shown.map((g, idx) => (
+//             <Reveal key={g.id} delay={0.08 + idx * 0.08} className="group">
+//               <SkillGroupCard g={g} />
+//             </Reveal>
+//           ))}
+//         </div>
+
+//         {showViewAll ? (
+//           <div className="mt-8 flex justify-center">
+//             <LuxuryButton
+//               href="/skills"
+//               variant="primary"
+//               className="cursor-pointer"
+//             >
+//               View all Skills →
+//             </LuxuryButton>
+//           </div>
+//         ) : null}
+//       </Container>
+//     </section>
+//   );
+// }
+
 "use client";
+
+import { useEffect, useRef } from "react";
 
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/shared/SectionHeading";
@@ -163,6 +275,13 @@ import Parallax from "@/components/ui/Parallax";
 import LuxuryButton from "@/components/ui/LuxuryButton";
 
 import { skills } from "@/data/skills";
+
+/** ✅ Same pattern like ProjectsSection (CustomEvent for scroll) */
+const SCROLL_EVENT = "mukul:scrollTo";
+export function broadcastScrollTo(id) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(SCROLL_EVENT, { detail: { id } }));
+}
 
 function SkillPill({ name, desc }) {
   return (
@@ -217,17 +336,58 @@ function SkillGroupCard({ g }) {
  * - limit: home pe kitne group cards dikhane (2)
  * - showViewAll: home pe button show
  * - compact: padding tweak
+ * - sectionId: default "skills" (AI suggestions / palette / hash)
  */
 export default function SkillsSection({
   limit,
   showViewAll = false,
   compact = false,
+  sectionId = "skills",
 }) {
+  const sectionRef = useRef(null);
+
+  // ✅ 1) hash based auto-scroll (/ #skills)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash?.replace("#", "");
+    if (!hash || hash !== sectionId) return;
+
+    const t = setTimeout(() => {
+      sectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 60);
+
+    return () => clearTimeout(t);
+  }, [sectionId]);
+
+  // ✅ 2) custom event scroll (AI suggestions / command palette)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onScrollTo = (e) => {
+      const id = e?.detail?.id;
+      if (!id || id !== sectionId) return;
+      sectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    };
+
+    window.addEventListener(SCROLL_EVENT, onScrollTo);
+    return () => window.removeEventListener(SCROLL_EVENT, onScrollTo);
+  }, [sectionId]);
+
   const list = Array.isArray(skills) ? skills : [];
   const shown = typeof limit === "number" ? list.slice(0, limit) : list;
 
   return (
-    <section className={compact ? "py-10" : "py-16"}>
+    <section
+      ref={sectionRef}
+      id={sectionId}
+      className={`${compact ? "py-10" : "py-16"} scroll-mt-24`}
+    >
       <Container>
         <Parallax from={16} to={-16}>
           <Reveal>
