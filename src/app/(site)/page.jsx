@@ -17,7 +17,7 @@ export default function HomePage() {
       <SkillsSection limit={2} showViewAll id="skills" />
       <ProjectsSection limit={2} showViewAll id="projects" />
       <BlogPreviewSection id="blog-preview"/>
-      <ExperienceSection limit={1} id="experience" showViewAll viewAllHref="/about#experience"/>
+      <ExperienceSection limit={1} mobileLimit={3} mode="home" id="experience" showViewAll={true} viewAllHref="/about#experience"/>
       <TestimonialsSection id="testimonials" />
       <FaqSection id="faq" />
       <ContactSection id="contact" />

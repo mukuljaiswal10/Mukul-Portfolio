@@ -1,66 +1,99 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import CountUp from "@/components/ui/CountUp";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-function parseValue(v) {
-  if (typeof v === "number") return { num: v, suffix: "" };
-  if (typeof v !== "string") return { text: String(v ?? "") };
-
-  // "10+" , "95/100" => number part + suffix
-  const m = v.trim().match(/^(\d+)(.*)$/);
-  if (!m) return { text: v };
-  return { num: Number(m[1]), suffix: (m[2] || "").trim() };
+function parseTarget(val) {
+  const raw = String(val ?? "").trim();
+  const num = parseInt(raw.replace(/[^\d]/g, ""), 10);
+  const suffix = raw.replace(String(num), "").trim(); // "+" etc
+  return {
+    target: Number.isFinite(num) ? num : 0,
+    suffix: suffix || "",
+  };
 }
 
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(false);
+export default function StatCard({
+  value = "10+",
+  label = "Projects",
+  className = "",
+  duration = 900, // ms for 0->target
+  hold = 3000, // ms wait after complete
+  startFrom = 0,
+}) {
+  const { target, suffix } = useMemo(() => parseTarget(value), [value]);
+
+  const [count, setCount] = useState(startFrom);
+
+  const rafRef = useRef(null);
+  const holdTimerRef = useRef(null);
+  const runningRef = useRef(false);
+
+  const clearAll = () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+
+    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+
+    runningRef.current = false;
+  };
+
+  const animateToTarget = () => {
+    clearAll();
+    runningRef.current = true;
+
+    const start = performance.now();
+    const from = startFrom;
+    const to = target;
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      const next = Math.round(from + (to - from) * eased);
+      setCount(next);
+
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+
+      // reached
+      setCount(to);
+
+      // hold 3s, then restart
+      holdTimerRef.current = setTimeout(() => {
+        setCount(from);
+        // small frame gap then start again
+        rafRef.current = requestAnimationFrame(() => animateToTarget());
+      }, hold);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+  };
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mq = window.matchMedia(`(max-width: ${breakpoint}px)`);
-    const update = () => setIsMobile(!!mq.matches);
-    update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
-  }, [breakpoint]);
-
-  return isMobile;
-}
-
-export default function StatCard({ value, label }) {
-  const parsed = parseValue(value);
-  const isMobile = useIsMobile(640);
+    // restart when target/value changes
+    animateToTarget();
+    return () => clearAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target, duration, hold]);
 
   return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 320, damping: 26 }}
+    <div
       className={[
-        "group relative overflow-hidden rounded-2xl",
-        "border border-border/15 bg-foreground/[0.03] p-4 backdrop-blur",
+        "rounded-2xl border border-border/12 bg-foreground/[0.03] p-4",
+        "shadow-[0_16px_50px_rgba(0,0,0,0.25)]",
+        className,
       ].join(" ")}
     >
-      {/* premium glow */}
-      <div className="pointer-events-none absolute -inset-14 opacity-0 blur-3xl transition duration-700 group-hover:opacity-70 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.12),transparent_55%)]" />
-      {/* shine sweep */}
-      <div className="pointer-events-none absolute -left-24 top-0 h-full w-24 rotate-12 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition duration-700 group-hover:opacity-100 group-hover:translate-x-[520px]" />
-
-      <p className="relative text-xl font-bold text-foreground">
-        {"num" in parsed ? (
-          <CountUp
-            to={parsed.num}
-            duration={950}
-            suffix={parsed.suffix || ""}
-            repeat={isMobile} // ✅ mobile repeat only
-          />
-        ) : (
-          parsed.text
-        )}
-      </p>
-
-      <p className="relative text-sm text-muted/70">{label}</p>
-    </motion.div>
+      <div className="text-2xl font-bold text-foreground">
+        {count}
+        {suffix}
+      </div>
+      <div className="mt-1 text-sm text-muted/70">{label}</div>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import Container from "@/components/ui/Container";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import AboutSection from "@/components/sections/AboutSection";
-import SkillsSection from "@/components/sections/SkillsSection";
+// import SkillsSection from "@/components/sections/SkillsSection";
 import ExperienceSection from "@/components/sections/ExperienceSection";
 import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
@@ -23,8 +23,8 @@ export default function AboutPage() {
       </Container>
 
       <AboutSection />
-      <SkillsSection />
-      <ExperienceSection id="experience"/>
+      {/* <SkillsSection /> */}
+      <ExperienceSection id="experience" mode="about" showViewAll={false} compact={false}/>
     </>
   );
 }

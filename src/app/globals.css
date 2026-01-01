@@ -710,3 +710,141 @@ body .border-white\/10 {
   border-radius: 14px;
   font-size: 13px;
 }
+
+/* =========================
+   AI Suggestion Sparkle Star
+   ========================= */
+@keyframes aiStarPulse {
+  0% {
+    transform: translateZ(0) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateZ(0) scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: translateZ(0) scale(1);
+    opacity: 0.85;
+  }
+}
+
+@keyframes aiStarSpin {
+  0% {
+    transform: rotate(0deg);
+    opacity: 0.35;
+  }
+  100% {
+    transform: rotate(360deg);
+    opacity: 0.35;
+  }
+}
+
+@keyframes aiStarTwinkle {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+}
+
+.ai-sparkleStar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 18px 60px rgba(0, 0, 0, 0.45);
+  animation: aiStarPulse 1.8s ease-in-out infinite;
+  overflow: hidden;
+}
+
+.ai-sparkleStar::before {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 220, 140, 0.35),
+    transparent 55%
+  );
+  filter: blur(10px);
+  opacity: 0.95;
+}
+
+.ai-sparkleStar::after {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  border-radius: 999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0%,
+    rgba(255, 220, 140, 0.22) 20%,
+    transparent 45%,
+    rgba(255, 255, 255, 0.1) 60%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  animation: aiStarSpin 3.2s linear infinite;
+}
+
+.ai-sparkleStar svg {
+  position: relative;
+  z-index: 2;
+  width: 22px;
+  height: 22px;
+  color: rgba(255, 220, 140, 0.96);
+  filter: drop-shadow(0 8px 18px rgba(255, 220, 140, 0.22))
+    drop-shadow(0 14px 35px rgba(0, 0, 0, 0.35));
+}
+
+.ai-sparkleDot {
+  position: absolute;
+  z-index: 3;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  filter: blur(0.2px) drop-shadow(0 10px 20px rgba(255, 220, 140, 0.25));
+  animation: aiStarTwinkle 1.4s ease-in-out infinite;
+}
+
+.ai-sparkleDot.one {
+  top: 7px;
+  right: 9px;
+  animation-delay: 0.15s;
+}
+.ai-sparkleDot.two {
+  bottom: 8px;
+  left: 10px;
+  animation-delay: 0.55s;
+}
+
+@media (max-width: 640px) {
+  .ai-sparkleStar {
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+  }
+  .ai-sparkleStar svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
