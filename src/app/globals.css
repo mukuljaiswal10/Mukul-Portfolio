@@ -848,3 +848,34 @@ body .border-white\/10 {
   }
 }
 
+/* SkillsSection animations (moved from <style jsx global> to avoid hydration mismatch) */
+.mj-chip-shimmer {
+  animation: mj_shimmer 2.8s linear infinite;
+}
+
+.mj-dot {
+  animation: mj_pulse 1.7s ease-in-out infinite;
+}
+
+@keyframes mj_shimmer {
+  0% {
+    transform: translateX(0) rotate(12deg);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateX(520px) rotate(12deg);
+    opacity: 0.55;
+  }
+}
+
+@keyframes mj_pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.95;
+  }
+}

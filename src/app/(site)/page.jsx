@@ -6,7 +6,8 @@ import TestimonialsSection from "@/components/sections/TestimonialsSection";
 import ContactSection from "@/components/sections/ContactSection";
 import FaqSection from "@/components/sections/FaqSection";
 import SmartHomeUX from "@/components/ai/SmartHomeUX";
-import ExperienceSection from "@/components/sections/ExperienceSection";
+import ExperienceSection from "@/components/sections/ExperienceSection.client";
+
 import BlogPreviewSection from "@/components/sections/BlogPreviewSection";
 export default function HomePage() {
   return (
@@ -20,7 +21,7 @@ export default function HomePage() {
       <ExperienceSection limit={1} mobileLimit={3} mode="home" id="experience" showViewAll={true} viewAllHref="/about#experience"/>
       <TestimonialsSection id="testimonials" />
       <FaqSection id="faq" />
-      <ContactSection id="contact" />
+      <ContactSection id="contact" showSubmitModal/>
     </>
   );
 }

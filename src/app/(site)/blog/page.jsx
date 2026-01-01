@@ -20,9 +20,9 @@ export default function BlogPage() {
           <Reveal>
             <Breadcrumbs items={[{ label: "Blogs" }]} />
             <h1 className="text-3xl font-bold md:text-4xl">Blogs</h1>
-            <p className="mt-2 max-w-2xl text-white/70">
+            {/* <p className="mt-2 max-w-2xl text-white/70">
               Build faster with clean UI, secure code, and deployment-ready guides.
-            </p>
+            </p> */}
             <div className="mt-[100px] max-w-4xl">
               <p className="text-xs uppercase tracking-[0.25em] text-foreground/55">
                 Blog • MERN • WordPress • Next.js

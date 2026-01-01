@@ -20,10 +20,10 @@ export default function SkillsPage() {
             <Reveal>
               <Breadcrumbs items={[{ label: "Skills" }]} />
               <h1 className="text-3xl font-bold md:text-4xl">Skills</h1>
-              <p className="mt-2 max-w-2xl text-white/70">
+              {/* <p className="mt-2 max-w-2xl text-white/70">
                 My core stack, tooling, and the UI systems I use to ship
                 production-ready work.
-              </p>
+              </p> */}
             </Reveal>
           </Parallax>
         </Container>

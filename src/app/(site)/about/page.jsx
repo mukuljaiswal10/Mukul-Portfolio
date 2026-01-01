@@ -14,10 +14,10 @@ export default function AboutPage() {
           <Reveal>
             <Breadcrumbs items={[{ label: "About" }]} />
             <h1 className="text-3xl font-bold md:text-4xl">About</h1>
-            <p className="mt-2 max-w-2xl text-white/70">
+            {/* <p className="mt-2 max-w-2xl text-white/70">
               I’m Mukul Jaiswal. I build responsive and fast websites with
               modern stacks.
-            </p>
+            </p> */}
           </Reveal>
         </Parallax>
       </Container>

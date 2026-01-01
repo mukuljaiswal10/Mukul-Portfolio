@@ -8,17 +8,16 @@ import { getSearchActions, runAction } from "@/components/ai/searchActions";
 import { getAllPosts } from "@/lib/blog";
 
 /**
- * ✅ Requirements covered:
- * - All pages (home + blog list + blog detail + others)
- * - Start after START_DELAY_MS
- * - 1 suggestion at a time, SHOW_MS show, close => next after NEXT_GAP_MS
- * - Close by ✕ OR outside click (no overlay, scroll works)
- * - Premium floating AI-like UI + random positions (mobile first)
+ * ✅ Position rule (premium + comfortable):
+ * - Mobile: TOP-CENTER (navbar ke niche) + slide-down + fade
+ * - Desktop: BOTTOM-RIGHT + slide-up + fade
+ *
+ * बाकी logic SAME रखा है.
  */
 
-const START_DELAY_MS = 5000; // ✅ 4s -> 6s (yahi change hota hai)
+const START_DELAY_MS = 6000; // (tumne 4->6 already set bola tha) - अगर 4 chahiye to 4000 कर देना
 const SHOW_MS = 7000;
-const NEXT_GAP_MS = 80000;
+const NEXT_GAP_MS = 15000;
 
 function isMobileLike() {
   if (typeof window === "undefined") return false;
@@ -31,45 +30,35 @@ function safeText(s = "") {
     .trim();
 }
 
-/** Random premium positions (not sticky). */
+/** ✅ Fixed premium positions */
 function pickPosition(isMobile) {
-  const mobile = [
-    { key: "tm", cls: "top-16 left-1/2 -translate-x-1/2" },
-    { key: "tr", cls: "top-16 right-4" },
-    { key: "tl", cls: "top-16 left-4" },
-    { key: "mm", cls: "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" },
-    { key: "mr", cls: "top-1/2 right-4 -translate-y-1/2" },
-    { key: "ml", cls: "top-1/2 left-4 -translate-y-1/2" },
-    { key: "br", cls: "bottom-24 right-4" },
-    { key: "bl", cls: "bottom-24 left-4" },
-  ];
-
-  const desktop = [
-    { key: "tr", cls: "top-24 right-8" },
-    { key: "tl", cls: "top-24 left-8" },
-    { key: "mr", cls: "top-1/2 right-10 -translate-y-1/2" },
-    { key: "ml", cls: "top-1/2 left-10 -translate-y-1/2" },
-    { key: "br", cls: "bottom-16 right-10" },
-    { key: "bl", cls: "bottom-16 left-10" },
-    { key: "tm", cls: "top-24 left-1/2 -translate-x-1/2" },
-  ];
-
-  const list = isMobile ? mobile : desktop;
-
-  const weights = list.map((p) => {
-    if (!isMobile) return 1;
-    if (p.key === "br" || p.key === "bl") return 0.35;
-    if (p.key === "mm") return 1.2;
-    return 1;
-  });
-
-  const total = weights.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < list.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return list[i];
+  if (isMobile) {
+    return {
+      key: "mobile-top-center",
+      // 76–96px target: safe-area + ~88px (navbar spacing)
+      cls: "top-[calc(env(safe-area-inset-top)+88px)] left-1/2 -translate-x-1/2",
+    };
   }
-  return list[0];
+  return {
+    key: "desktop-bottom-right",
+    cls: "bottom-8 right-8",
+  };
+}
+
+/** ✅ Motion variants based on device */
+function getMotion(isMobile) {
+  if (isMobile) {
+    return {
+      initial: { opacity: 0, y: -14, scale: 0.985, filter: "blur(10px)" }, // top se slide-down feel
+      animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+      exit: { opacity: 0, y: -10, scale: 0.985, filter: "blur(10px)" },
+    };
+  }
+  return {
+    initial: { opacity: 0, y: 14, scale: 0.985, filter: "blur(10px)" }, // bottom se slide-up feel
+    animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+    exit: { opacity: 0, y: 10, scale: 0.985, filter: "blur(10px)" },
+  };
 }
 
 /** Build context-aware suggestions from searchActions + blog data */
@@ -78,6 +67,9 @@ function buildSuggestions({ pathname, actions, posts }) {
     pathname === "/" || pathname?.includes("/(site)") || pathname === "/home";
   const isBlogList = pathname === "/blog";
   const isBlogDetail = pathname?.startsWith("/blog/") && pathname !== "/blog";
+
+  const getAction = (startsWithId) =>
+    actions.find((a) => String(a.id || "").startsWith(startsWithId));
 
   const sec = (id) =>
     actions.find((a) => a.kind === "section" && a.sectionId === id);
@@ -108,21 +100,21 @@ function buildSuggestions({ pathname, actions, posts }) {
       title: "AI Suggestion",
       desc: "See premium work samples — open Projects.",
       cta: "Open Projects →",
-      action: route("/projects"),
+      action: route("/projects") || getAction("page:/projects"),
     },
     {
       id: "sug:skills",
       title: "AI Suggestion",
       desc: "Want tech stack? Check Skills page.",
       cta: "Open Skills →",
-      action: route("/skills"),
+      action: route("/skills") || getAction("page:/skills"),
     },
     {
       id: "sug:contact",
       title: "AI Suggestion",
       desc: "Have a project? Ping me in Contact.",
       cta: "Contact Me →",
-      action: route("/contact"),
+      action: route("/contact") || getAction("page:/contact"),
     },
   ].filter((x) => x.action);
 
@@ -132,7 +124,7 @@ function buildSuggestions({ pathname, actions, posts }) {
       title: "AI Suggestion",
       desc: "Latest articles? Jump to Blog section on Home.",
       cta: "Go to Blog section →",
-      action: sec("blog") || sec("blog-preview"), // ✅ safe (tumhare id me blog-preview bhi hai)
+      action: sec("blog") || sec("blog-preview"),
     },
     {
       id: "sug:home:projectsSection",
@@ -180,18 +172,17 @@ function buildSuggestions({ pathname, actions, posts }) {
 
   const blogDetail = (() => {
     const slug = pathname.split("/blog/")[1]?.split("?")[0]?.split("#")[0];
+
     let next = null;
     let prev = null;
-
     try {
       const sorted = (posts || [])
         .slice()
         .sort(
           (a, b) =>
             new Date(b.date || b.publishedAt || 0) -
-            new Date(a.date || b.publishedAt || 0)
+            new Date(a.date || a.publishedAt || 0)
         );
-
       const idx = sorted.findIndex((p) => p.slug === slug);
       if (idx >= 0) {
         next = sorted[idx + 1];
@@ -201,6 +192,9 @@ function buildSuggestions({ pathname, actions, posts }) {
 
     const nextAction = next
       ? actions.find((a) => a.id === `blog:${next.slug}`)
+      : null;
+    const prevAction = prev
+      ? actions.find((a) => a.id === `blog:${prev.slug}`)
       : null;
 
     return [
@@ -216,7 +210,7 @@ function buildSuggestions({ pathname, actions, posts }) {
         title: "AI Suggestion",
         desc: next
           ? `Next read: ${safeText(next.title)}`
-          : "Explore another post.",
+          : "Explore another blog post.",
         cta: "Open next →",
         action: nextAction || anyBlog.find((a) => a.id !== `blog:${slug}`),
       },
@@ -244,12 +238,21 @@ export default function AISuggestions() {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState(null);
   const [current, setCurrent] = useState(null);
-
   const [mobile, setMobile] = useState(false);
+  // ✅ Countdown (7..1)
+  const SHOW_SEC = Math.ceil(SHOW_MS / 1000); // SHOW_MS already upar defined hai
+  const [secLeft, setSecLeft] = useState(SHOW_SEC);
 
-  // ✅ countdown state (7 -> 0)
-  const [secondsLeft, setSecondsLeft] = useState(Math.ceil(SHOW_MS / 1000));
-  const countdownRef = useRef(null);
+  useEffect(() => {
+    if (!open) return; // toast closed => no timer
+    setSecLeft(SHOW_SEC); // reset to 7 every time it opens
+
+    const t = setInterval(() => {
+      setSecLeft((p) => (p <= 1 ? 1 : p - 1));
+    }, 1000);
+
+    return () => clearInterval(t);
+  }, [open, SHOW_SEC]);
 
   const timers = useRef({ start: null, autoClose: null, next: null });
   const cardRef = useRef(null);
@@ -288,67 +291,49 @@ export default function AISuggestions() {
     timers.current = { start: null, autoClose: null, next: null };
   };
 
-  const stopCountdown = () => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    countdownRef.current = null;
-  };
-
-  const startCountdown = () => {
-    stopCountdown();
-    const total = Math.ceil(SHOW_MS / 1000);
-    setSecondsLeft(total);
-    let left = total;
-
-    countdownRef.current = setInterval(() => {
-      left -= 1;
-      setSecondsLeft(Math.max(left, 0));
-      if (left <= 0) stopCountdown();
-    }, 1000);
-  };
-
   const pickNext = () => {
     if (!pool.length) return null;
-
     const available = pool.filter((x) => !usedRef.current.has(x.id));
     const list = available.length ? available : pool;
-
     if (!available.length) usedRef.current.clear();
-
     const item = list[Math.floor(Math.random() * list.length)];
     usedRef.current.add(item.id);
     return item;
   };
 
-  const openWith = (item) => {
-    setPos(pickPosition(mobile));
-    setCurrent(item);
-    setOpen(true);
-    startCountdown();
-    clearTimeout(timers.current.autoClose);
-    timers.current.autoClose = setTimeout(() => closeNow("auto"), SHOW_MS);
+  const scheduleNext = () => {
+    clearTimeout(timers.current.next);
+    timers.current.next = setTimeout(() => {
+      const nextItem = pickNext();
+      if (!nextItem) return;
+
+      setPos(pickPosition(mobile));
+      setCurrent(nextItem);
+      setOpen(true);
+
+      clearTimeout(timers.current.autoClose);
+      timers.current.autoClose = setTimeout(() => closeNow(), SHOW_MS);
+    }, NEXT_GAP_MS);
   };
 
   const closeNow = () => {
     setOpen(false);
     setCurrent(null);
-    stopCountdown();
     clearTimeout(timers.current.autoClose);
-
-    clearTimeout(timers.current.next);
-    timers.current.next = setTimeout(() => {
-      const nextItem = pickNext();
-      if (!nextItem) return;
-      openWith(nextItem);
-    }, NEXT_GAP_MS);
+    scheduleNext();
   };
 
   const startCycle = () => {
     clearTimers();
-    stopCountdown();
     timers.current.start = setTimeout(() => {
-      const item = pickNext();
-      if (!item) return;
-      openWith(item);
+      const nextItem = pickNext();
+      if (!nextItem) return;
+
+      setPos(pickPosition(mobile));
+      setCurrent(nextItem);
+      setOpen(true);
+
+      timers.current.autoClose = setTimeout(() => closeNow(), SHOW_MS);
     }, START_DELAY_MS);
   };
 
@@ -356,12 +341,8 @@ export default function AISuggestions() {
     usedRef.current.clear();
     setOpen(false);
     setCurrent(null);
-    stopCountdown();
     startCycle();
-    return () => {
-      clearTimers();
-      stopCountdown();
-    };
+    return () => clearTimers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, mobile]);
 
@@ -392,25 +373,20 @@ export default function AISuggestions() {
   const onCTAClick = () => {
     if (!current?.action) return;
 
-    // close first (strict no overlap)
     setOpen(false);
     setCurrent(null);
-    stopCountdown();
     clearTimeout(timers.current.autoClose);
 
     setTimeout(() => {
       runAction(current.action, { router, pathname });
     }, 120);
 
-    clearTimeout(timers.current.next);
-    timers.current.next = setTimeout(() => {
-      const nextItem = pickNext();
-      if (!nextItem) return;
-      openWith(nextItem);
-    }, NEXT_GAP_MS);
+    scheduleNext();
   };
 
   if (!current) return null;
+
+  const mv = getMotion(mobile);
 
   return (
     <AnimatePresence>
@@ -418,11 +394,12 @@ export default function AISuggestions() {
         <motion.div
           className={[
             "fixed z-[999] w-[min(360px,92vw)] pointer-events-auto",
-            pos?.cls || "top-16 right-4",
+            pos?.cls ||
+              "top-[calc(env(safe-area-inset-top)+88px)] left-1/2 -translate-x-1/2",
           ].join(" ")}
-          initial={{ opacity: 0, y: 14, scale: 0.98, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: 10, scale: 0.985, filter: "blur(10px)" }}
+          initial={mv.initial}
+          animate={mv.animate}
+          exit={mv.exit}
           transition={{ duration: 0.22, ease: "easeOut" }}
         >
           <motion.div
@@ -439,7 +416,7 @@ export default function AISuggestions() {
             <motion.div
               aria-hidden
               className="pointer-events-none absolute -inset-12 rounded-full bg-[radial-gradient(circle,rgba(255,215,0,0.20),transparent_55%)] blur-3xl"
-              animate={{ opacity: [0.25, 0.6, 0.25], scale: [1, 1.1, 1] }}
+              animate={{ opacity: [0.25, 0.55, 0.25], scale: [1, 1.08, 1] }}
               transition={{
                 duration: 2.6,
                 repeat: Infinity,
@@ -465,34 +442,11 @@ export default function AISuggestions() {
             <div className="relative p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  {/* ✅ BIG glowing sparkle */}
-                  <span className="relative grid h-10 w-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.05]">
-                    <motion.span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-[-14px] rounded-full bg-[radial-gradient(circle,rgba(255,215,0,0.35),transparent_60%)] blur-xl"
-                      animate={{
-                        opacity: [0.35, 0.85, 0.35],
-                        scale: [0.96, 1.08, 0.96],
-                      }}
-                      transition={{
-                        duration: 1.9,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                    <motion.span
-                      className="text-[22px] text-[#FFD54A] drop-shadow-[0_0_18px_rgba(255,215,0,0.55)]"
-                      animate={{ rotate: [0, 8, 0], scale: [1, 1.08, 1] }}
-                      transition={{
-                        duration: 1.6,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
+                  <span className="grid h-9 w-9 place-items-center rounded-2xl border border-white/10 bg-white/[0.05]">
+                    <span className="text-[#FFD54A] drop-shadow-[0_0_12px_rgba(255,215,0,0.45)]">
                       ✦
-                    </motion.span>
+                    </span>
                   </span>
-
                   <div className="leading-tight">
                     <p className="text-xs text-white/55">{current.title}</p>
                     <p className="text-sm font-semibold text-[#F6E7B2]">
@@ -530,9 +484,8 @@ export default function AISuggestions() {
                   <span className="relative">{current.cta}</span>
                 </button>
 
-                {/* ✅ countdown */}
                 <span className="text-[11px] text-white/45">
-                  Auto close in {secondsLeft}s
+                  Auto close in {secLeft}s
                 </span>
               </div>
 

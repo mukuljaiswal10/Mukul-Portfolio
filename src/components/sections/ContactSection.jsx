@@ -1,7 +1,10 @@
+
+
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/shared/SectionHeading";
@@ -52,7 +55,7 @@ function Chip({ active, onClick, children }) {
   );
 }
 
-/** ✅ Premium Toast (Animated + progress + mobile safe) */
+/** ✅ Premium Toast */
 function Toast({ toast }) {
   return (
     <AnimatePresence>
@@ -87,7 +90,6 @@ function Toast({ toast }) {
               </div>
             </div>
 
-            {/* progress bar */}
             <motion.div
               aria-hidden
               className="absolute bottom-0 left-0 h-[2px] w-full bg-foreground/30"
@@ -214,17 +216,294 @@ function StickyWhatsApp({ href, onClick, isMobile, tick }) {
   );
 }
 
+/** ✅ Modal (createPortal) */
+function ConfirmModal({
+  open,
+  type,
+  topicLabel,
+  onClose,
+  whatsappUrl,
+  mailUrl,
+  snapshot,
+}) {
+  const mounted = useRef(false);
+  const [ready, setReady] = useState(false);
+
+  // ✅ FIX: hooks must be before any return
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    mounted.current = true;
+    setReady(true);
+    return () => {
+      mounted.current = false;
+      setReady(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev || "";
+    };
+  }, [open]);
+
+  // ✅ FIX: function also stays before any return
+  const copySnapshot = async () => {
+    try {
+      const text = [
+        "Your message snapshot",
+        `Topic: ${topicLabel || "-"}`,
+        `Name: ${snapshot?.name?.trim() || "-"}`,
+        `Email: ${snapshot?.email?.trim() || "-"}`,
+        "",
+        "Message:",
+        `${snapshot?.message?.trim() || "-"}`,
+      ].join("\n");
+
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1200);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (!open || !ready || typeof document === "undefined") return null;
+
+  const isSuccess = type === "success";
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[1000] grid place-items-center"
+      aria-modal="true"
+      role="dialog"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose?.();
+      }}
+    >
+      {/* Backdrop */}
+      <motion.div
+        className="absolute inset-0 bg-black/55 backdrop-blur-[6px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+
+      {/* Modal */}
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.98, filter: "blur(12px)" }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, y: 10, scale: 0.98, filter: "blur(12px)" }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className={[
+          "relative w-[min(920px,92vw)] rounded-[26px] border border-white/12",
+          "bg-[#0B0E14]/92 text-white shadow-[0_35px_120px_rgba(0,0,0,0.65)]",
+          "overflow-hidden",
+        ].join(" ")}
+        onMouseDown={(e) => e.stopPropagation()}
+      >
+        {/* top gold line */}
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,rgba(255,215,0,0.85),transparent)] opacity-80" />
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04] hover:bg-white/[0.07]"
+        >
+          ✕
+        </button>
+
+        <div className="p-5 sm:p-7">
+          <div className="flex items-start gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04]">
+              ✦
+            </span>
+
+            <div className="min-w-0">
+              <p className="text-xs text-white/60">AI Confirmation</p>
+
+              <h3
+                className={[
+                  "mt-1 text-2xl font-bold tracking-tight",
+                  isSuccess ? "text-[#FFD54A]" : "text-white",
+                ].join(" ")}
+              >
+                {isSuccess
+                  ? "Message sent successfully ✅"
+                  : "Oops! Message not sent"}
+              </h3>
+
+              <p className="mt-2 text-sm text-white/70">
+                {isSuccess
+                  ? "Thanks! I received your message — I’ll reply soon (usually within 24 hours)."
+                  : "No worries — you can still reach me instantly via WhatsApp/Email."}
+              </p>
+
+              <p className="mt-3 text-xs text-white/55">
+                Topic: <span className="text-white/75">{topicLabel}</span>
+              </p>
+              {/* ✅ Your message snapshot */}
+              {snapshot ? (
+                <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-white/85">
+                      Your message snapshot
+                    </p>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-white/50">Auto-saved</span>
+
+                      <button
+                        type="button"
+                        onClick={copySnapshot}
+                        className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.07] transition"
+                      >
+                        {copied ? "Copied ✓" : "Copy snapshot"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3">
+                    <div className="text-xs text-white/60">
+                      <span className="text-white/80">Name:</span>{" "}
+                      {snapshot?.name?.trim() ? snapshot.name.trim() : "—"}
+                      <span className="mx-2 text-white/30">•</span>
+                      <span className="text-white/80">Email:</span>{" "}
+                      {snapshot?.email?.trim() ? snapshot.email.trim() : "—"}
+                    </div>
+
+                    <div className="mt-1 text-xs text-white/60">
+                      <span className="text-white/80">Topic:</span> {topicLabel}
+                    </div>
+
+                    <div className="mt-3">
+                      <p className="text-xs text-white/55 mb-1">Message</p>
+                      <div className="max-h-32 overflow-auto whitespace-pre-wrap text-sm text-white/80 leading-relaxed">
+                        {snapshot?.message?.trim()
+                          ? snapshot.message.trim()
+                          : "—"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Highlights */}
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {[
+              {
+                icon: "⚡",
+                title: "Fast + smooth UI",
+                desc: "Clean animations, responsive layouts, premium feel.",
+              },
+              {
+                icon: "🛡️",
+                title: "Secure + scalable",
+                desc: "Best practices, clean APIs, production-ready code.",
+              },
+              {
+                icon: "✅",
+                title: "Clear delivery",
+                desc: "Milestones, revisions plan, and support guidance.",
+              },
+            ].map((x) => (
+              <div
+                key={x.title}
+                className="rounded-2xl border border-white/12 bg-white/[0.04] p-4"
+              >
+                <p className="text-sm font-semibold">
+                  <span className="mr-2">{x.icon}</span>
+                  {x.title}
+                </p>
+                <p className="mt-1 text-xs text-white/65">{x.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* fallback strip (only on fail) */}
+          {!isSuccess ? (
+            <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
+              <p className="text-sm font-semibold">Quick fallback</p>
+              <p className="mt-1 text-xs text-white/65">
+                Sometimes server delay happens. Your draft is safe — use
+                WhatsApp/Email for instant contact.
+              </p>
+            </div>
+          ) : null}
+
+          {/* actions */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="/projects"
+                className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+              >
+                View Projects →
+              </a>
+              <a
+                href="/services"
+                className="rounded-2xl border border-white/14 bg-[#FFD54A]/20 px-4 py-2 text-sm hover:bg-[#FFD54A]/25"
+              >
+                Services →
+              </a>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+              >
+                WhatsApp
+              </a>
+              <a
+                href={mailUrl}
+                className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+              >
+                Email
+              </a>
+            </div>
+          </div>
+
+          <p className="mt-3 text-xs text-white/45">
+            Tip: Tap outside or press Esc to close
+          </p>
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  );
+}
+
 /**
  * ✅ UPDATED:
- * - id prop added (default "contact")
- * - hash "#contact" आते ही auto scroll
- * - scroll-mt for navbar offset
+ * - Success / Failed modal via createPortal
+ * - Success pe: draft clear + status text remove
+ * - Fail pe: fallback WhatsApp/Email
+ * - Project type: Admin Panel + E-commerce add
+ * - Other select => smooth input + suggestion chips (tap => autofill)
+ * - Bug fix: no reset() usage => no "Cannot read properties of null"
  */
 export default function ContactSection({ id = "contact", compact = false }) {
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null);
 
   const [topic, setTopic] = useState("webapp");
+  const [otherText, setOtherText] = useState("");
 
   /** ✅ Draft (controlled) */
   const [draft, setDraft] = useState({ name: "", email: "", message: "" });
@@ -254,7 +533,6 @@ export default function ContactSection({ id = "contact", compact = false }) {
       const el = document.getElementById(id);
       if (!el) return;
 
-      // small delay for layout ready
       setTimeout(() => {
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 60);
@@ -277,6 +555,8 @@ export default function ContactSection({ id = "contact", compact = false }) {
           email: parsed?.email || "",
           message: parsed?.message || "",
         });
+        if (parsed?.topic) setTopic(parsed.topic);
+        if (parsed?.otherText) setOtherText(parsed.otherText);
       }
     } catch {}
 
@@ -287,6 +567,8 @@ export default function ContactSection({ id = "contact", compact = false }) {
         email: d?.email || "",
         message: d?.message || "",
       });
+      if (d?.topic) setTopic(d.topic);
+      if (typeof d?.otherText === "string") setOtherText(d.otherText);
     };
     window.addEventListener("mukul:contactDraft", onDraft);
     return () => window.removeEventListener("mukul:contactDraft", onDraft);
@@ -295,9 +577,22 @@ export default function ContactSection({ id = "contact", compact = false }) {
   const setDraftField = (key, value) => {
     setDraft((prev) => {
       const next = { ...prev, [key]: value };
-      if (typeof window !== "undefined") broadcastDraft(next);
+      if (typeof window !== "undefined")
+        broadcastDraft({ ...next, topic, otherText });
       return next;
     });
+  };
+
+  const setTopicSafe = (nextTopic) => {
+    setTopic(nextTopic);
+    if (typeof window !== "undefined")
+      broadcastDraft({ ...draft, topic: nextTopic, otherText });
+  };
+
+  const setOtherSafe = (val) => {
+    setOtherText(val);
+    if (typeof window !== "undefined")
+      broadcastDraft({ ...draft, topic, otherText: val });
   };
 
   // ✅ submit button states
@@ -308,6 +603,13 @@ export default function ContactSection({ id = "contact", compact = false }) {
   // ✅ WhatsApp tick + haptic
   const [waTick, setWaTick] = useState(false);
 
+  // ✅ Modal state
+  const [modal, setModal] = useState({
+    open: false,
+    type: "success",
+    snapshot: null,
+  });
+
   const EMAIL = "mukuljaiswal282@gmail.com";
   const WHATSAPP = "+919919371299";
   const whatsappDigits = WHATSAPP.replace(/\D/g, "");
@@ -317,20 +619,42 @@ export default function ContactSection({ id = "contact", compact = false }) {
       { id: "portfolio", label: "Portfolio", emoji: "✨" },
       { id: "webapp", label: "Web App", emoji: "⚡" },
       { id: "landing", label: "Landing Page", emoji: "🚀" },
+      { id: "admin", label: "Admin Panel", emoji: "🧩" },
+      { id: "ecommerce", label: "E-commerce Website", emoji: "🛒" },
       { id: "uifix", label: "UI Fix / Redesign", emoji: "🎨" },
       { id: "other", label: "Other", emoji: "💬" },
     ],
     []
   );
 
+  const otherSuggestions = useMemo(
+    () => [
+      "Gym / Fitness",
+      "Restaurant",
+      "Clinic",
+      "Travel / Tour",
+      "School / Institute",
+      "Real Estate",
+      "Salon / Spa",
+      "Coaching",
+      "Construction",
+    ],
+    []
+  );
+
   const activeTopic = topics.find((t) => t.id === topic) || topics[1];
+
+  const topicLabel = useMemo(() => {
+    if (topic !== "other") return `${activeTopic.emoji} ${activeTopic.label}`;
+    return otherText?.trim() ? `💬 Other — ${otherText.trim()}` : `💬 Other`;
+  }, [topic, activeTopic, otherText]);
 
   const buildMessage = () => {
     const lines = [];
     lines.push(`Hi Mukul 👋`);
     lines.push(`I saw your portfolio and want to discuss a project.`);
     lines.push("");
-    lines.push(`Topic: ${activeTopic.emoji} ${activeTopic.label}`);
+    lines.push(`Topic: ${topicLabel}`);
     if (draft.name?.trim()) lines.push(`Name: ${draft.name.trim()}`);
     if (draft.email?.trim()) lines.push(`Email: ${draft.email.trim()}`);
     if (draft.message?.trim()) {
@@ -348,16 +672,16 @@ export default function ContactSection({ id = "contact", compact = false }) {
       buildMessage()
     )}`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [whatsappDigits, topic, draft]);
+  }, [whatsappDigits, topic, draft, otherText]);
 
   const mailUrl = useMemo(() => {
-    const subject = `Project Inquiry — ${activeTopic.label}`;
+    const subject = `Project Inquiry — ${topicLabel}`;
     const body = buildMessage();
     return `mailto:${EMAIL}?subject=${encodeURIComponent(
       subject
     )}&body=${encodeURIComponent(body)}`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [EMAIL, topic, draft]);
+  }, [EMAIL, topic, draft, otherText]);
 
   /** ✅ Premium toast helper */
   const showToast = (type, text, sub, ms = 1400) => {
@@ -371,7 +695,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
     setTimeout(() => setConfetti(false), 1100);
   };
 
-  /** ✅ Copy with label (Email/WhatsApp) */
+  /** ✅ Copy with label */
   const copy = async (text, label = "Text") => {
     try {
       await navigator.clipboard.writeText(text);
@@ -414,17 +738,34 @@ export default function ContactSection({ id = "contact", compact = false }) {
     showToast("success", "Opening Email…", "Draft is ready ✉️", 1200);
   };
 
+  const clearAllAfterSuccess = () => {
+    setDraft({ name: "", email: "", message: "" });
+    setOtherText("");
+    setTopic("webapp");
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    try {
+      broadcastDraft({
+        name: "",
+        email: "",
+        message: "",
+        topic: "webapp",
+        otherText: "",
+      });
+    } catch {}
+  };
+
   async function onSubmit(evn) {
     evn.preventDefault();
-    setStatus(null);
     setLoading(true);
     setSent(false);
 
-    const form = new FormData(evn.currentTarget);
     const payload = {
-      name: form.get("name"),
-      email: form.get("email"),
-      message: `Topic: ${activeTopic.label}\n\n${form.get("message")}`,
+      name: draft.name,
+      email: draft.email,
+      message: `Topic: ${topicLabel}\n\n${draft.message}`,
     };
 
     try {
@@ -434,29 +775,36 @@ export default function ContactSection({ id = "contact", compact = false }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "Something went wrong");
 
-      setStatus({ ok: true, msg: "Message sent ✅" });
+      // ✅ SUCCESS
       showToast("success", "Sent!", "I’ll reply soon ✨", 1400);
       fireConfetti();
 
       setSent(true);
       setTimeout(() => setSent(false), 1600);
 
-      evn.currentTarget.reset();
+      // ✅ open SUCCESS modal
+      setModal({
+        open: true,
+        type: "success",
+        snapshot: {
+          name: draft.name,
+          email: draft.email,
+          message: draft.message,
+        },
+      });
 
-      // ✅ clear draft (also storage)
-      setDraft({ name: "", email: "", message: "" });
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch {}
-      try {
-        broadcastDraft({ name: "", email: "", message: "" });
-      } catch {}
+      // ✅ clear all inputs + remove any status text
+      clearAllAfterSuccess();
     } catch (err) {
-      setStatus({ ok: false, msg: err.message || "Something went wrong" });
-      showToast("error", "Failed", err.message || "Something went wrong", 1600);
+      // ✅ FAIL
+      const msg = err?.message || "Something went wrong";
+      showToast("error", "Failed", msg, 1600);
+
+      // ✅ open FAIL modal
+      setModal({ open: true, type: "error" });
     } finally {
       setLoading(false);
     }
@@ -467,6 +815,21 @@ export default function ContactSection({ id = "contact", compact = false }) {
       <Toast toast={toast} />
       <ConfettiBurst fire={confetti} />
 
+      {/* ✅ Success/Fail Modal (createPortal) */}
+      <AnimatePresence>
+        {modal.open ? (
+          <ConfirmModal
+            open={modal.open}
+            type={modal.type === "success" ? "success" : "error"}
+            topicLabel={topicLabel}
+            whatsappUrl={whatsappUrl}
+            mailUrl={mailUrl}
+            snapshot={modal.snapshot}
+            onClose={() => setModal({ open: false, type: modal.type })}
+          />
+        ) : null}
+      </AnimatePresence>
+
       {/* ✅ Sticky WhatsApp CTA only on mobile */}
       <StickyWhatsApp
         href={whatsappUrl}
@@ -475,7 +838,6 @@ export default function ContactSection({ id = "contact", compact = false }) {
         tick={waTick}
       />
 
-      {/* ✅ NOTE: id + scroll-mt for navbar offset */}
       <section
         id={id}
         className={`${compact ? "py-10" : "py-16"} scroll-mt-24`}
@@ -484,7 +846,6 @@ export default function ContactSection({ id = "contact", compact = false }) {
           <Parallax from={12} to={-12}>
             <Reveal>
               <SectionHeading
-                eyebrow="Contact"
                 title="Let’s build something together"
                 desc="Send a message and I’ll get back to you."
               />
@@ -512,12 +873,55 @@ export default function ContactSection({ id = "contact", compact = false }) {
                       <Chip
                         key={t.id}
                         active={topic === t.id}
-                        onClick={() => setTopic(t.id)}
+                        onClick={() => setTopicSafe(t.id)}
                       >
                         {t.emoji} {t.label}
                       </Chip>
                     ))}
                   </div>
+
+                  {/* ✅ Other input (smooth open) */}
+                  <AnimatePresence>
+                    {topic === "other" ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -6 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -6 }}
+                        transition={{ duration: 0.22, ease: "easeOut" }}
+                        className="mt-3 overflow-hidden"
+                      >
+                        <div className="rounded-2xl border border-border/12 bg-foreground/[0.03] p-3">
+                          <p className="text-xs text-muted/60">
+                            Write your project type (e.g. Gym / Fitness)
+                          </p>
+                          <div className="mt-2">
+                            <Input
+                              value={otherText}
+                              onChange={(e) => setOtherSafe(e.target.value)}
+                              placeholder="Type project category…"
+                            />
+                          </div>
+
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {otherSuggestions.map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setOtherSafe(s)}
+                                className="rounded-full border border-border/12 bg-foreground/[0.03] px-3 py-1 text-xs text-foreground/80 hover:bg-foreground/[0.06]"
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+
+                          <p className="mt-2 text-[11px] text-muted/60">
+                            Tip: tap a suggestion or type custom.
+                          </p>
+                        </div>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
                 </div>
 
                 <div className="mt-5 space-y-3 text-sm text-white/75">
@@ -536,7 +940,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
                     <button
                       type="button"
                       onClick={() => copy(EMAIL, "Email")}
-                      className=" cursor-pointer rounded-xl border border-border/15 bg-foreground/[0.03] px-3 py-2 text-xs text-foreground/85 hover:bg-foreground/[0.06]"
+                      className="cursor-pointer rounded-xl border border-border/15 bg-foreground/[0.03] px-3 py-2 text-xs text-foreground/85 hover:bg-foreground/[0.06]"
                     >
                       Copy
                     </button>
@@ -691,21 +1095,12 @@ export default function ContactSection({ id = "contact", compact = false }) {
                     </div>
                   </Reveal>
 
-                  {status ? (
-                    <p
-                      className={`text-sm ${
-                        status.ok ? "text-green-400" : "text-red-400"
-                      }`}
-                    >
-                      {status.msg}
-                    </p>
-                  ) : null}
+                  {/* ✅ IMPORTANT: no status text on success (only toast + modal) */}
                 </form>
               </Card>
             </Reveal>
           </div>
 
-          {/* ✅ spacing so sticky bar doesn't cover */}
           <div className="h-20 md:hidden" />
         </Container>
       </section>
