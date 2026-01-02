@@ -1,7 +1,7 @@
 // "use client";
 
-// import { useEffect, useMemo, useRef, useState } from "react";
-// import { usePathname, useSearchParams, useRouter } from "next/navigation";
+// import { useEffect, useMemo, useState } from "react";
+// import { usePathname, useSearchParams } from "next/navigation";
 // import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 // import { createPortal } from "react-dom";
 
@@ -33,7 +33,7 @@
 //   return encodeURIComponent(lines.join("\n"));
 // }
 
-// /** ✅ Premium Toast (same vibe) */
+// /** ✅ Premium Toast */
 // function Toast({ toast }) {
 //   return (
 //     <AnimatePresence>
@@ -86,7 +86,7 @@
 //   );
 // }
 
-// /** ✅ Modal (createPortal) — SAME premium luxury feel */
+// /** ✅ Modal (createPortal) — MOBILE FIXED */
 // function ConfirmModal({
 //   open,
 //   type,
@@ -107,13 +107,12 @@
 
 //   useEffect(() => {
 //     if (!open) return;
-//     const onKey = (e) => {
-//       if (e.key === "Escape") onClose?.();
-//     };
+//     const onKey = (e) => e.key === "Escape" && onClose?.();
 //     window.addEventListener("keydown", onKey);
 //     return () => window.removeEventListener("keydown", onKey);
 //   }, [open, onClose]);
 
+//   // lock background scroll
 //   useEffect(() => {
 //     if (!open) return;
 //     const prev = document.body.style.overflow;
@@ -125,7 +124,6 @@
 
 //   useEffect(() => {
 //     if (!open) return;
-
 //     setCountdown(7);
 
 //     const t = setInterval(() => {
@@ -168,229 +166,240 @@
 
 //   if (!open || !ready || typeof document === "undefined") return null;
 
+//   // start
+
 //   return createPortal(
 //     <div
-//       className="fixed inset-0 z-[1000] grid place-items-center"
-//       aria-modal="true"
+//       className="fixed inset-0 z-[1000] overflow-y-auto"
 //       role="dialog"
-//       onMouseDown={(e) => {
-//         if (e.target === e.currentTarget) onClose?.();
-//       }}
+//       aria-modal="true"
 //     >
 //       {/* Backdrop */}
 //       <motion.div
-//         className="absolute inset-0 bg-black/55 backdrop-blur-[6px]"
+//         className="fixed inset-0 bg-black/55 backdrop-blur-[6px]"
 //         initial={{ opacity: 0 }}
 //         animate={{ opacity: 1 }}
 //         exit={{ opacity: 0 }}
+//         onMouseDown={() => onClose?.()}
 //       />
 
-//       {/* Modal */}
-//       <motion.div
-//         initial={{ opacity: 0, y: 18, scale: 0.98, filter: "blur(12px)" }}
-//         animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-//         exit={{ opacity: 0, y: 10, scale: 0.98, filter: "blur(12px)" }}
-//         transition={{ duration: 0.22, ease: "easeOut" }}
-//         className={[
-//           "relative w-[min(920px,92vw)] rounded-[26px] border border-white/12",
-//           "bg-[#0B0E14]/92 text-white shadow-[0_35px_120px_rgba(0,0,0,0.65)]",
-//           "overflow-hidden",
-//         ].join(" ")}
-//         onMouseDown={(e) => e.stopPropagation()}
+//       {/* Center wrapper (safe-area + no cut on mobile) */}
+//       <div
+//         className="relative min-h-[100dvh] px-4 flex items-start sm:items-center justify-center"
+//         style={{
+//           paddingTop: "max(16px, env(safe-area-inset-top))",
+//           paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+//         }}
 //       >
-//         {/* top gold line */}
-//         <div className="absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,rgba(255,215,0,0.85),transparent)] opacity-80" />
-
-//         <button
-//           type="button"
-//           onClick={onClose}
-//           className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04] hover:bg-white/[0.07]"
+//         <motion.div
+//           initial={{ opacity: 0, y: 18, scale: 0.98, filter: "blur(12px)" }}
+//           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+//           exit={{ opacity: 0, y: 10, scale: 0.98, filter: "blur(12px)" }}
+//           transition={{ duration: 0.22, ease: "easeOut" }}
+//           className={[
+//             "relative w-[min(920px,92vw)] rounded-[26px] border border-white/12",
+//             "bg-[#0B0E14]/92 text-white shadow-[0_35px_120px_rgba(0,0,0,0.65)]",
+//             "overflow-hidden",
+//             "max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-3rem)]",
+//             "overflow-y-auto overscroll-contain",
+//           ].join(" ")}
+//           onMouseDown={(e) => e.stopPropagation()}
 //         >
-//           ✕
-//         </button>
+//           {/* top gold line */}
+//           <div className="absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,rgba(255,215,0,0.85),transparent)] opacity-80" />
 
-//         <div className="p-5 sm:p-7">
-//           <div className="flex items-start gap-3">
-//             <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04]">
-//               ✦
-//             </span>
+//           <button
+//             type="button"
+//             onClick={onClose}
+//             className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04] hover:bg-white/[0.07]"
+//           >
+//             ✕
+//           </button>
 
-//             <div className="min-w-0">
-//               <p className="text-xs text-white/60">AI Confirmation</p>
+//           <div className="p-5 sm:p-7">
+//             <div className="flex items-start gap-3">
+//               <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04]">
+//                 ✦
+//               </span>
 
-//               <h3
-//                 className={[
-//                   "mt-1 text-2xl font-bold tracking-tight",
-//                   isSuccess ? "text-[#FFD54A]" : "text-white",
-//                 ].join(" ")}
-//               >
-//                 {isSuccess
-//                   ? "Message sent successfully ✅"
-//                   : "Oops! Message not sent"}
-//               </h3>
+//               <div className="min-w-0">
+//                 <p className="text-xs text-white/60">AI Confirmation</p>
 
-//               <p className="mt-2 text-sm text-white/70">
-//                 {isSuccess
-//                   ? "Thanks! I received your message — I’ll reply soon (usually within 24 hours)."
-//                   : "No worries — you can still reach me instantly via WhatsApp/Email."}
-//               </p>
+//                 <h3
+//                   className={[
+//                     "mt-1 text-2xl font-bold tracking-tight",
+//                     isSuccess ? "text-[#FFD54A]" : "text-white",
+//                   ].join(" ")}
+//                 >
+//                   {isSuccess
+//                     ? "Message sent successfully ✅"
+//                     : "Oops! Message not sent"}
+//                 </h3>
 
-//               <p className="mt-3 text-xs text-white/55">
-//                 Project: <span className="text-white/75">{projectLabel}</span>
-//               </p>
+//                 <p className="mt-2 text-sm text-white/70">
+//                   {isSuccess
+//                     ? "Thanks! I received your message — I’ll reply soon (usually within 24 hours)."
+//                     : "No worries — you can still reach me instantly via WhatsApp/Email."}
+//                 </p>
 
-//               {/* ✅ Snapshot (success + fail both) */}
-//               {snapshot ? (
-//                 <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
-//                   <div className="flex items-center justify-between gap-3">
-//                     <p className="text-sm font-semibold text-white/85">
-//                       Your message snapshot
-//                     </p>
+//                 <p className="mt-3 text-xs text-white/55">
+//                   Project: <span className="text-white/75">{projectLabel}</span>
+//                 </p>
 
-//                     <div className="flex items-center gap-2">
-//                       <span className="text-xs text-white/50">Auto-saved</span>
+//                 {snapshot ? (
+//                   <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
+//                     <div className="flex items-center justify-between gap-3">
+//                       <p className="text-sm font-semibold text-white/85">
+//                         Your message snapshot
+//                       </p>
 
-//                       <button
-//                         type="button"
-//                         onClick={copySnapshot}
-//                         className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.07] transition"
-//                       >
-//                         {copied ? "Copied ✓" : "Copy snapshot"}
-//                       </button>
-//                     </div>
-//                   </div>
+//                       <div className="flex items-center gap-2">
+//                         <span className="text-xs text-white/50">
+//                           Auto-saved
+//                         </span>
 
-//                   <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3">
-//                     <div className="text-xs text-white/60">
-//                       <span className="text-white/80">Name:</span>{" "}
-//                       {snapshot?.name?.trim() ? snapshot.name.trim() : "—"}
-//                       <span className="mx-2 text-white/30">•</span>
-//                       <span className="text-white/80">Email:</span>{" "}
-//                       {snapshot?.email?.trim() ? snapshot.email.trim() : "—"}
-//                     </div>
-
-//                     <div className="mt-1 text-xs text-white/60">
-//                       <span className="text-white/80">Budget:</span>{" "}
-//                       {snapshot?.budget?.trim() ? snapshot.budget.trim() : "—"}
-//                       <span className="mx-2 text-white/30">•</span>
-//                       <span className="text-white/80">Timeline:</span>{" "}
-//                       {snapshot?.timeline?.trim()
-//                         ? snapshot.timeline.trim()
-//                         : "—"}
+//                         <button
+//                           type="button"
+//                           onClick={copySnapshot}
+//                           className="rounded-xl border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs text-white/80 hover:bg-white/[0.07] transition"
+//                         >
+//                           {copied ? "Copied ✓" : "Copy snapshot"}
+//                         </button>
+//                       </div>
 //                     </div>
 
-//                     <div className="mt-1 text-xs text-white/60">
-//                       <span className="text-white/80">Project:</span>{" "}
-//                       {projectLabel}
-//                     </div>
+//                     <div className="mt-2 rounded-xl border border-white/10 bg-black/20 p-3">
+//                       <div className="text-xs text-white/60">
+//                         <span className="text-white/80">Name:</span>{" "}
+//                         {snapshot?.name?.trim() ? snapshot.name.trim() : "—"}
+//                         <span className="mx-2 text-white/30">•</span>
+//                         <span className="text-white/80">Email:</span>{" "}
+//                         {snapshot?.email?.trim() ? snapshot.email.trim() : "—"}
+//                       </div>
 
-//                     <div className="mt-3">
-//                       <p className="text-xs text-white/55 mb-1">Message</p>
-//                       <div className="max-h-32 overflow-auto whitespace-pre-wrap text-sm text-white/80 leading-relaxed">
-//                         {snapshot?.message?.trim()
-//                           ? snapshot.message.trim()
+//                       <div className="mt-1 text-xs text-white/60">
+//                         <span className="text-white/80">Budget:</span>{" "}
+//                         {snapshot?.budget?.trim()
+//                           ? snapshot.budget.trim()
 //                           : "—"}
+//                         <span className="mx-2 text-white/30">•</span>
+//                         <span className="text-white/80">Timeline:</span>{" "}
+//                         {snapshot?.timeline?.trim()
+//                           ? snapshot.timeline.trim()
+//                           : "—"}
+//                       </div>
+
+//                       <div className="mt-1 text-xs text-white/60">
+//                         <span className="text-white/80">Project:</span>{" "}
+//                         {projectLabel}
+//                       </div>
+
+//                       <div className="mt-3">
+//                         <p className="text-xs text-white/55 mb-1">Message</p>
+//                         <div className="max-h-32 overflow-auto whitespace-pre-wrap text-sm text-white/80 leading-relaxed">
+//                           {snapshot?.message?.trim()
+//                             ? snapshot.message.trim()
+//                             : "—"}
+//                         </div>
 //                       </div>
 //                     </div>
 //                   </div>
-//                 </div>
-//               ) : null}
-//             </div>
-//           </div>
-
-//           {/* Highlights */}
-//           <div className="mt-5 grid gap-3 sm:grid-cols-3">
-//             {[
-//               {
-//                 icon: "⚡",
-//                 title: "Fast + smooth UI",
-//                 desc: "Clean animations, responsive layouts, premium feel.",
-//               },
-//               {
-//                 icon: "🛡️",
-//                 title: "Secure + scalable",
-//                 desc: "Best practices, clean APIs, production-ready code.",
-//               },
-//               {
-//                 icon: "✅",
-//                 title: "Clear delivery",
-//                 desc: "Milestones, revisions plan, and support guidance.",
-//               },
-//             ].map((x) => (
-//               <div
-//                 key={x.title}
-//                 className="rounded-2xl border border-white/12 bg-white/[0.04] p-4"
-//               >
-//                 <p className="text-sm font-semibold">
-//                   <span className="mr-2">{x.icon}</span>
-//                   {x.title}
-//                 </p>
-//                 <p className="mt-1 text-xs text-white/65">{x.desc}</p>
+//                 ) : null}
 //               </div>
-//             ))}
+//             </div>
+
+//             <div className="mt-5 grid gap-3 sm:grid-cols-3">
+//               {[
+//                 {
+//                   icon: "⚡",
+//                   title: "Fast + smooth UI",
+//                   desc: "Clean animations, responsive layouts, premium feel.",
+//                 },
+//                 {
+//                   icon: "🛡️",
+//                   title: "Secure + scalable",
+//                   desc: "Best practices, clean APIs, production-ready code.",
+//                 },
+//                 {
+//                   icon: "✅",
+//                   title: "Clear delivery",
+//                   desc: "Milestones, revisions plan, and support guidance.",
+//                 },
+//               ].map((x) => (
+//                 <div
+//                   key={x.title}
+//                   className="rounded-2xl border border-white/12 bg-white/[0.04] p-4"
+//                 >
+//                   <p className="text-sm font-semibold">
+//                     <span className="mr-2">{x.icon}</span>
+//                     {x.title}
+//                   </p>
+//                   <p className="mt-1 text-xs text-white/65">{x.desc}</p>
+//                 </div>
+//               ))}
+//             </div>
+
+//             {!isSuccess ? (
+//               <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
+//                 <p className="text-sm font-semibold">Quick fallback</p>
+//                 <p className="mt-1 text-xs text-white/65">
+//                   Sometimes server delay happens. Your snapshot is safe — use
+//                   WhatsApp/Email for instant contact.
+//                 </p>
+//               </div>
+//             ) : null}
+
+//             <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+//               <div className="flex flex-wrap gap-3">
+//                 <a
+//                   href="/projects"
+//                   className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+//                 >
+//                   View Projects →
+//                 </a>
+//                 <a
+//                   href="/services"
+//                   className="rounded-2xl border border-white/14 bg-[#FFD54A]/20 px-4 py-2 text-sm hover:bg-[#FFD54A]/25"
+//                 >
+//                   Services →
+//                 </a>
+//               </div>
+
+//               <div className="flex flex-wrap gap-3">
+//                 <a
+//                   href={whatsappUrl}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                   className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+//                 >
+//                   WhatsApp
+//                 </a>
+//                 <a
+//                   href={mailUrl}
+//                   className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
+//                 >
+//                   Email
+//                 </a>
+//               </div>
+//             </div>
+
+//             <p className="mt-3 text-xs text-white/45">
+//               Auto close in{" "}
+//               <span className="text-white/80 font-semibold">{countdown}</span>s
+//               • Tap outside or press Esc to close
+//             </p>
 //           </div>
-
-//           {/* fallback strip (only on fail) */}
-//           {!isSuccess ? (
-//             <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
-//               <p className="text-sm font-semibold">Quick fallback</p>
-//               <p className="mt-1 text-xs text-white/65">
-//                 Sometimes server delay happens. Your snapshot is safe — use
-//                 WhatsApp/Email for instant contact.
-//               </p>
-//             </div>
-//           ) : null}
-
-//           {/* actions */}
-//           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-//             <div className="flex flex-wrap gap-3">
-//               <a
-//                 href="/projects"
-//                 className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
-//               >
-//                 View Projects →
-//               </a>
-//               <a
-//                 href="/services"
-//                 className="rounded-2xl border border-white/14 bg-[#FFD54A]/20 px-4 py-2 text-sm hover:bg-[#FFD54A]/25"
-//               >
-//                 Services →
-//               </a>
-//             </div>
-
-//             <div className="flex flex-wrap gap-3">
-//               <a
-//                 href={whatsappUrl}
-//                 target="_blank"
-//                 rel="noopener noreferrer"
-//                 className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
-//               >
-//                 WhatsApp
-//               </a>
-//               <a
-//                 href={mailUrl}
-//                 className="rounded-2xl border border-white/14 bg-white/[0.03] px-4 py-2 text-sm hover:bg-white/[0.06]"
-//               >
-//                 Email
-//               </a>
-//             </div>
-//           </div>
-
-//           <p className="mt-3 text-xs text-white/45">
-//             Auto close in{" "}
-//             <span className="text-white/80 font-semibold">{countdown}</span>s •
-//             Tap outside or press Esc to close
-//           </p>
-//         </div>
-//       </motion.div>
+//         </motion.div>
+//       </div>
 //     </div>,
 //     document.body
 //   );
+
+//   // end
 // }
 
 // export default function ContactPageClient() {
 //   const reduce = useReducedMotion();
-//   const router = useRouter();
 //   const pathname = usePathname();
 //   const sp = useSearchParams();
 
@@ -406,32 +415,30 @@
 //   const [email, setEmail] = useState("");
 //   const [message, setMessage] = useState(prefillMsg || "");
 //   const [companyWebsite, setCompanyWebsite] = useState(""); // honeypot
-
 //   const [loading, setLoading] = useState(false);
 
-//   // ✅ keep your existing toast + add premium toast (same behavior)
-//   const [toast, setToast] = useState(null); // {type:'ok'|'err', text:''}
-//   const [pToast, setPToast] = useState(null); // premium toast
+//   const [toast, setToast] = useState(null);
+//   const [pToast, setPToast] = useState(null);
 
-//   // ✅ modal
 //   const [modal, setModal] = useState({
 //     open: false,
 //     type: "success",
 //     snapshot: null,
 //   });
 
-//   const source = useMemo(() => {
-//     if (prefillFrom) return prefillFrom;
-//     return "contact-page";
-//   }, [prefillFrom]);
+//   const source = useMemo(
+//     () => (prefillFrom ? prefillFrom : "contact-page"),
+//     [prefillFrom]
+//   );
 
 //   const activeProject = useMemo(() => {
 //     return PROJECT_TYPES.find((x) => x.id === projectType) || PROJECT_TYPES[0];
 //   }, [projectType]);
 
-//   const projectLabel = useMemo(() => {
-//     return `${activeProject.icon} ${activeProject.label}`;
-//   }, [activeProject]);
+//   const projectLabel = useMemo(
+//     () => `${activeProject.icon} ${activeProject.label}`,
+//     [activeProject]
+//   );
 
 //   const waLink = useMemo(() => {
 //     const txt = buildWhatsAppText({
@@ -488,7 +495,6 @@
 //     setLoading(true);
 //     setToast(null);
 
-//     // ✅ snapshot BEFORE clearing
 //     const snap = {
 //       name,
 //       email,
@@ -511,30 +517,23 @@
 //           timeline,
 //           source,
 //           page: pathname,
-//           companyWebsite, // honeypot
+//           companyWebsite,
 //         }),
 //       });
 
 //       const data = await res.json().catch(() => ({}));
-//       if (!res.ok || !data?.ok) {
+//       if (!res.ok || !data?.ok)
 //         throw new Error(data?.error || "Failed to send.");
-//       }
 
-//       // ✅ success toast + modal
 //       setToast({ type: "ok", text: "Message sent ✅ I’ll reply soon." });
 //       showPremiumToast("ok", "Sent!", "I’ll reply soon ✨", 1400);
 
 //       setModal({ open: true, type: "success", snapshot: snap });
-
-//       // ✅ reset (like homepage)
 //       clearAllAfterSuccess();
 //     } catch (err) {
 //       const msg = err?.message || "Something went wrong.";
-
 //       setToast({ type: "err", text: msg });
 //       showPremiumToast("err", "Failed", msg, 1600);
-
-//       // ✅ fail modal (snapshot safe)
 //       setModal({ open: true, type: "error", snapshot: snap });
 //     } finally {
 //       setLoading(false);
@@ -544,7 +543,6 @@
 
 //   return (
 //     <>
-//       {/* ✅ premium toast + modal */}
 //       <Toast toast={pToast} />
 
 //       <AnimatePresence>
@@ -562,14 +560,12 @@
 //       </AnimatePresence>
 
 //       <section className="relative overflow-hidden">
-//         {/* premium background */}
 //         <div className="pointer-events-none absolute inset-0">
 //           <div className="absolute -top-28 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-foreground/10 blur-3xl" />
 //           <div className="absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-foreground/10 blur-3xl" />
 //         </div>
 
 //         <div className="relative mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-20">
-//           {/* header */}
 //           <div className="max-w-2xl">
 //             <p className="text-sm text-white/55">Contact</p>
 //             <h1 className="mt-2 text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFE7A3_0%,#E9C86A_45%,#B8892E_100%)] md:text-4xl">
@@ -580,9 +576,8 @@
 //             </p>
 //           </div>
 
-//           {/* layout */}
 //           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-//             {/* LEFT: quick actions */}
+//             {/* LEFT */}
 //             <motion.div
 //               initial={
 //                 reduce ? false : { opacity: 0, y: 14, filter: "blur(10px)" }
@@ -608,7 +603,6 @@
 //                   </span>
 //                 </div>
 
-//                 {/* project types */}
 //                 <div className="mt-5">
 //                   <p className="text-xs text-white/55 mb-2">Project type</p>
 //                   <div className="flex flex-wrap gap-2">
@@ -642,7 +636,6 @@
 //                   </div>
 //                 </div>
 
-//                 {/* budget/timeline */}
 //                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
 //                   <div>
 //                     <label className="text-xs text-white/55">Budget</label>
@@ -664,7 +657,6 @@
 //                   </div>
 //                 </div>
 
-//                 {/* Email row */}
 //                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
 //                   <div className="flex items-center justify-between gap-3">
 //                     <div className="min-w-0">
@@ -683,7 +675,6 @@
 //                   </div>
 //                 </div>
 
-//                 {/* WhatsApp row */}
 //                 <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
 //                   <div className="flex items-center justify-between gap-3">
 //                     <div className="min-w-0">
@@ -702,7 +693,6 @@
 //                   </div>
 //                 </div>
 
-//                 {/* CTAs */}
 //                 <div className="mt-5 flex flex-wrap gap-3">
 //                   <a
 //                     href={waLink}
@@ -728,7 +718,7 @@
 //               </div>
 //             </motion.div>
 
-//             {/* RIGHT: form */}
+//             {/* RIGHT */}
 //             <motion.div
 //               initial={
 //                 reduce ? false : { opacity: 0, y: 14, filter: "blur(10px)" }
@@ -740,7 +730,6 @@
 //               <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,rgba(255,215,0,0.85),transparent)]" />
 
 //               <form onSubmit={onSubmit} className="p-5 sm:p-6">
-//                 {/* honeypot hidden */}
 //                 <input
 //                   value={companyWebsite}
 //                   onChange={(e) => setCompanyWebsite(e.target.value)}
@@ -806,7 +795,6 @@
 //                   </p>
 //                 </div>
 
-//                 {/* existing toast (kept) */}
 //                 <AnimatePresence>
 //                   {toast ? (
 //                     <motion.div
@@ -828,7 +816,6 @@
 //             </motion.div>
 //           </div>
 
-//           {/* subtle footer helper */}
 //           <div className="mt-8 text-xs text-white/45">
 //             Need fast response? Use WhatsApp. For detailed brief, use the form.
 //           </div>
@@ -840,8 +827,8 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
 
@@ -873,7 +860,7 @@ function buildWhatsAppText({ name, projectType, budget, timeline, message }) {
   return encodeURIComponent(lines.join("\n"));
 }
 
-/** ✅ Premium Toast */
+/** ✅ Premium Toast (same vibe) */
 function Toast({ toast }) {
   return (
     <AnimatePresence>
@@ -926,7 +913,9 @@ function Toast({ toast }) {
   );
 }
 
-/** ✅ Modal (createPortal) — MOBILE FIXED */
+/** ✅ Modal (createPortal) — SAME premium luxury feel
+ *  ✅ FIX: Mobile height smaller + inner scroll (no top/bottom cut)
+ */
 function ConfirmModal({
   open,
   type,
@@ -947,12 +936,13 @@ function ConfirmModal({
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e) => e.key === "Escape" && onClose?.();
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // lock background scroll
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -964,6 +954,7 @@ function ConfirmModal({
 
   useEffect(() => {
     if (!open) return;
+
     setCountdown(7);
 
     const t = setInterval(() => {
@@ -1009,10 +1000,10 @@ function ConfirmModal({
   return createPortal(
     <div
       className="fixed inset-0 z-[1000] overflow-y-auto"
-      role="dialog"
       aria-modal="true"
+      role="dialog"
     >
-      {/* Backdrop */}
+      {/* Backdrop (tap outside = close) */}
       <motion.div
         className="fixed inset-0 bg-black/55 backdrop-blur-[6px]"
         initial={{ opacity: 0 }}
@@ -1021,14 +1012,15 @@ function ConfirmModal({
         onMouseDown={() => onClose?.()}
       />
 
-      {/* Center wrapper (safe-area + no cut on mobile) */}
+      {/* Center wrapper + safe areas */}
       <div
-        className="relative min-h-[100dvh] px-4 flex items-start sm:items-center justify-center"
+        className="relative min-h-[100dvh] px-4 flex items-center justify-center"
         style={{
-          paddingTop: "max(16px, env(safe-area-inset-top))",
-          paddingBottom: "max(16px, env(safe-area-inset-bottom))",
+          paddingTop: "max(14px, env(safe-area-inset-top))",
+          paddingBottom: "max(14px, env(safe-area-inset-bottom))",
         }}
       >
+        {/* Modal */}
         <motion.div
           initial={{ opacity: 0, y: 18, scale: 0.98, filter: "blur(12px)" }}
           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
@@ -1037,9 +1029,11 @@ function ConfirmModal({
           className={[
             "relative w-[min(920px,92vw)] rounded-[26px] border border-white/12",
             "bg-[#0B0E14]/92 text-white shadow-[0_35px_120px_rgba(0,0,0,0.65)]",
-            "overflow-hidden",
-            "max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-3rem)]",
-            "overflow-y-auto overscroll-contain",
+            "overflow-hidden flex flex-col",
+            // ✅ MOBILE: keep modal shorter than screen, content scrolls inside
+            "max-h-[72dvh] max-h-[72vh]",
+            // ✅ Larger screens can be taller
+            "sm:max-h-[calc(100dvh-3rem)] sm:max-h-[calc(100vh-3rem)]",
           ].join(" ")}
           onMouseDown={(e) => e.stopPropagation()}
         >
@@ -1049,12 +1043,13 @@ function ConfirmModal({
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04] hover:bg-white/[0.07]"
+            className="absolute right-4 top-4 z-20 grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04] hover:bg-white/[0.07]"
           >
             ✕
           </button>
 
-          <div className="p-5 sm:p-7">
+          {/* ✅ Scrollable content area */}
+          <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-7">
             <div className="flex items-start gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-2xl border border-white/14 bg-white/[0.04]">
                 ✦
@@ -1084,6 +1079,7 @@ function ConfirmModal({
                   Project: <span className="text-white/75">{projectLabel}</span>
                 </p>
 
+                {/* ✅ Snapshot (success + fail both) */}
                 {snapshot ? (
                   <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
                     <div className="flex items-center justify-between gap-3">
@@ -1146,6 +1142,7 @@ function ConfirmModal({
               </div>
             </div>
 
+            {/* Highlights */}
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {[
                 {
@@ -1177,6 +1174,7 @@ function ConfirmModal({
               ))}
             </div>
 
+            {/* fallback strip (only on fail) */}
             {!isSuccess ? (
               <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
                 <p className="text-sm font-semibold">Quick fallback</p>
@@ -1187,6 +1185,7 @@ function ConfirmModal({
               </div>
             ) : null}
 
+            {/* actions */}
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-3">
                 <a
@@ -1236,6 +1235,7 @@ function ConfirmModal({
 
 export default function ContactPageClient() {
   const reduce = useReducedMotion();
+  const router = useRouter();
   const pathname = usePathname();
   const sp = useSearchParams();
 
@@ -1251,30 +1251,32 @@ export default function ContactPageClient() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState(prefillMsg || "");
   const [companyWebsite, setCompanyWebsite] = useState(""); // honeypot
+
   const [loading, setLoading] = useState(false);
 
-  const [toast, setToast] = useState(null);
-  const [pToast, setPToast] = useState(null);
+  // ✅ keep your existing toast + add premium toast (same behavior)
+  const [toast, setToast] = useState(null); // {type:'ok'|'err', text:''}
+  const [pToast, setPToast] = useState(null); // premium toast
 
+  // ✅ modal
   const [modal, setModal] = useState({
     open: false,
     type: "success",
     snapshot: null,
   });
 
-  const source = useMemo(
-    () => (prefillFrom ? prefillFrom : "contact-page"),
-    [prefillFrom]
-  );
+  const source = useMemo(() => {
+    if (prefillFrom) return prefillFrom;
+    return "contact-page";
+  }, [prefillFrom]);
 
   const activeProject = useMemo(() => {
     return PROJECT_TYPES.find((x) => x.id === projectType) || PROJECT_TYPES[0];
   }, [projectType]);
 
-  const projectLabel = useMemo(
-    () => `${activeProject.icon} ${activeProject.label}`,
-    [activeProject]
-  );
+  const projectLabel = useMemo(() => {
+    return `${activeProject.icon} ${activeProject.label}`;
+  }, [activeProject]);
 
   const waLink = useMemo(() => {
     const txt = buildWhatsAppText({
@@ -1331,6 +1333,7 @@ export default function ContactPageClient() {
     setLoading(true);
     setToast(null);
 
+    // ✅ snapshot BEFORE clearing
     const snap = {
       name,
       email,
@@ -1353,23 +1356,30 @@ export default function ContactPageClient() {
           timeline,
           source,
           page: pathname,
-          companyWebsite,
+          companyWebsite, // honeypot
         }),
       });
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok)
+      if (!res.ok || !data?.ok) {
         throw new Error(data?.error || "Failed to send.");
+      }
 
+      // ✅ success toast + modal
       setToast({ type: "ok", text: "Message sent ✅ I’ll reply soon." });
       showPremiumToast("ok", "Sent!", "I’ll reply soon ✨", 1400);
 
       setModal({ open: true, type: "success", snapshot: snap });
+
+      // ✅ reset (like homepage)
       clearAllAfterSuccess();
     } catch (err) {
       const msg = err?.message || "Something went wrong.";
+
       setToast({ type: "err", text: msg });
       showPremiumToast("err", "Failed", msg, 1600);
+
+      // ✅ fail modal (snapshot safe)
       setModal({ open: true, type: "error", snapshot: snap });
     } finally {
       setLoading(false);
@@ -1379,6 +1389,7 @@ export default function ContactPageClient() {
 
   return (
     <>
+      {/* ✅ premium toast + modal */}
       <Toast toast={pToast} />
 
       <AnimatePresence>
@@ -1396,12 +1407,14 @@ export default function ContactPageClient() {
       </AnimatePresence>
 
       <section className="relative overflow-hidden">
+        {/* premium background */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -top-28 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-foreground/10 blur-3xl" />
           <div className="absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-foreground/10 blur-3xl" />
         </div>
 
         <div className="relative mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-20">
+          {/* header */}
           <div className="max-w-2xl">
             <p className="text-sm text-white/55">Contact</p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-[linear-gradient(180deg,#FFE7A3_0%,#E9C86A_45%,#B8892E_100%)] md:text-4xl">
@@ -1412,8 +1425,9 @@ export default function ContactPageClient() {
             </p>
           </div>
 
+          {/* layout */}
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            {/* LEFT */}
+            {/* LEFT: quick actions */}
             <motion.div
               initial={
                 reduce ? false : { opacity: 0, y: 14, filter: "blur(10px)" }
@@ -1439,6 +1453,7 @@ export default function ContactPageClient() {
                   </span>
                 </div>
 
+                {/* project types */}
                 <div className="mt-5">
                   <p className="text-xs text-white/55 mb-2">Project type</p>
                   <div className="flex flex-wrap gap-2">
@@ -1472,6 +1487,7 @@ export default function ContactPageClient() {
                   </div>
                 </div>
 
+                {/* budget/timeline */}
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="text-xs text-white/55">Budget</label>
@@ -1493,6 +1509,7 @@ export default function ContactPageClient() {
                   </div>
                 </div>
 
+                {/* Email row */}
                 <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -1511,6 +1528,7 @@ export default function ContactPageClient() {
                   </div>
                 </div>
 
+                {/* WhatsApp row */}
                 <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -1529,6 +1547,7 @@ export default function ContactPageClient() {
                   </div>
                 </div>
 
+                {/* CTAs */}
                 <div className="mt-5 flex flex-wrap gap-3">
                   <a
                     href={waLink}
@@ -1554,7 +1573,7 @@ export default function ContactPageClient() {
               </div>
             </motion.div>
 
-            {/* RIGHT */}
+            {/* RIGHT: form */}
             <motion.div
               initial={
                 reduce ? false : { opacity: 0, y: 14, filter: "blur(10px)" }
@@ -1566,6 +1585,7 @@ export default function ContactPageClient() {
               <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-[linear-gradient(90deg,transparent,rgba(255,215,0,0.85),transparent)]" />
 
               <form onSubmit={onSubmit} className="p-5 sm:p-6">
+                {/* honeypot hidden */}
                 <input
                   value={companyWebsite}
                   onChange={(e) => setCompanyWebsite(e.target.value)}
@@ -1631,6 +1651,7 @@ export default function ContactPageClient() {
                   </p>
                 </div>
 
+                {/* existing toast (kept) */}
                 <AnimatePresence>
                   {toast ? (
                     <motion.div
@@ -1652,6 +1673,7 @@ export default function ContactPageClient() {
             </motion.div>
           </div>
 
+          {/* subtle footer helper */}
           <div className="mt-8 text-xs text-white/45">
             Need fast response? Use WhatsApp. For detailed brief, use the form.
           </div>
