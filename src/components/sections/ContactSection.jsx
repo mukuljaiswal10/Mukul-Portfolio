@@ -2129,6 +2129,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
                       required
                       value={draft.name}
                       onChange={(ev) => setDraftField("name", ev.target.value)}
+                      className="text-[16px] sm:text-sm"
                     />
                   </Reveal>
 
@@ -2140,6 +2141,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
                       required
                       value={draft.email}
                       onChange={(ev) => setDraftField("email", ev.target.value)}
+                      className="text-[16px] sm:text-sm"
                     />
                   </Reveal>
 
@@ -2152,6 +2154,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
                       onChange={(ev) =>
                         setDraftField("message", ev.target.value)
                       }
+                      className="text-[16px] sm:text-sm"
                     />
                   </Reveal>
 
