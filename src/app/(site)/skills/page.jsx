@@ -1,9 +1,3 @@
-// import SkillsSection from "@/components/sections/SkillsSection";
-
-// export default function SkillsPage() {
-//   return <SkillsSection showViewAll={false} />;
-// }
-
 import Container from "@/components/ui/Container";
 import SkillsSection from "@/components/sections/SkillsSection";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";

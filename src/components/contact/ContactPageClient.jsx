@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -764,7 +763,7 @@ export default function ContactPageClient() {
 
                   <div>
                     <label className="text-xs text-white/55">Your email</label>
-                    <input 
+                    <input
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"

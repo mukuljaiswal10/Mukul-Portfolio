@@ -1,31 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-
-// export default function ReadingProgress() {
-//   const [p, setP] = useState(0);
-
-//   useEffect(() => {
-//     const onScroll = () => {
-//       const el = document.documentElement;
-//       const top = el.scrollTop || 0;
-//       const height = el.scrollHeight - el.clientHeight;
-//       const v =
-//         height > 0 ? Math.min(100, Math.max(0, (top / height) * 100)) : 0;
-//       setP(v);
-//     };
-//     window.addEventListener("scroll", onScroll, { passive: true });
-//     onScroll();
-//     return () => window.removeEventListener("scroll", onScroll);
-//   }, []);
-
-//   return (
-//     <div className="fixed left-0 top-0 z-[80] h-[2px] w-full bg-transparent">
-//       <div className="h-full bg-[#E7C266]/80" style={{ width: `${p}%` }} />
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useEffect, useState } from "react";

@@ -17,11 +17,18 @@ export default function HomePage() {
       <AboutSection id="about" />
       <SkillsSection limit={2} showViewAll id="skills" />
       <ProjectsSection limit={2} showViewAll id="projects" />
-      <BlogPreviewSection id="blog-preview"/>
-      <ExperienceSection limit={1} mobileLimit={3} mode="home" id="experience" showViewAll={true} viewAllHref="/about#experience"/>
+      <BlogPreviewSection id="blog-preview" />
+      <ExperienceSection
+        limit={1}
+        mobileLimit={3}
+        mode="home"
+        id="experience"
+        showViewAll={true}
+        viewAllHref="/about#experience"
+      />
       <TestimonialsSection id="testimonials" />
       <FaqSection id="faq" />
-      <ContactSection id="contact" showSubmitModal/>
+      <ContactSection id="contact" showSubmitModal />
     </>
   );
 }

@@ -4,8 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { getSearchActions, runAction } from "@/components/ai/searchActions";
+import { getSearchActions } from "@/components/ai/searchActions";
 import { getAllPosts } from "@/lib/blog";
+
+function toActionArray(maybe) {
+  if (Array.isArray(maybe)) return maybe;
+  if (Array.isArray(maybe?.actions)) return maybe.actions;
+  if (Array.isArray(maybe?.items)) return maybe.items;
+  return [];
+}
 
 /**
  * ✅ Position rule (premium + comfortable):
@@ -265,10 +272,7 @@ export default function AISuggestions() {
     return () => window.removeEventListener?.("resize", update);
   }, []);
 
-  const actions = useMemo(
-    () => getSearchActions?.({ pathname }) || [],
-    [pathname]
-  );
+  const actions = toActionArray(getSearchActions({ pathname }));
 
   const posts = useMemo(() => {
     try {
@@ -377,8 +381,26 @@ export default function AISuggestions() {
     setCurrent(null);
     clearTimeout(timers.current.autoClose);
 
+    // setTimeout(() => {
+    //   runAction(current.action, { router, pathname });
+    // }, 120);
+
     setTimeout(() => {
-      runAction(current.action, { router, pathname });
+      const href =
+        current?.href ||
+        current?.action?.href ||
+        current?.action?.target ||
+        current?.action?.to;
+
+      if (href) {
+        router.push(href);
+        return;
+      }
+
+      // fallback: if action is actually a function
+      if (typeof current?.action === "function") {
+        current.action({ router, pathname });
+      }
     }, 120);
 
     scheduleNext();

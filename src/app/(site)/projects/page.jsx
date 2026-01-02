@@ -1,4 +1,3 @@
-
 import ProjectsSection from "@/components/sections/ProjectsSection";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import Reveal from "@/components/ui/Reveal";

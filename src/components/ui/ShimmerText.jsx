@@ -1,38 +1,3 @@
-// "use client";
-
-// import { useMemo } from "react";
-
-// export default function ShimmerText({ text = "" }) {
-//   // stable delays (random-like but fixed on every render)
-//   const delays = useMemo(() => {
-//     const arr = [];
-//     for (let i = 0; i < text.length; i++) {
-//       // deterministic pseudo-random delay based on index + char code
-//       const code = text.charCodeAt(i) || 0;
-//       const v = (i * 37 + code * 13) % 120; // 0..119
-//       arr.push((v / 100).toFixed(2)); // 0.00..1.19s
-//     }
-//     return arr;
-//   }, [text]);
-
-//   return (
-//     <span className="shimmer-word" aria-label={text}>
-//       {text.split("").map((ch, i) => {
-//         if (ch === " ") return <span key={i}>&nbsp;</span>;
-//         return (
-//           <span
-//             key={i}
-//             className="shimmer-letter"
-//             style={{ ["--d"]: `${delays[i]}s` }}
-//           >
-//             {ch}
-//           </span>
-//         );
-//       })}
-//     </span>
-//   );
-// }
-
 "use client";
 import { motion } from "framer-motion";
 

@@ -1,5 +1,3 @@
-
-
 // src/app/(site)/blog/[slug]/page.jsx
 import Container from "@/components/ui/Container";
 import BlogPostClient from "@/components/blog/BlogPostClient";

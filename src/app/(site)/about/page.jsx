@@ -24,7 +24,12 @@ export default function AboutPage() {
 
       <AboutSection />
       {/* <SkillsSection /> */}
-      <ExperienceSection id="experience" mode="about" showViewAll={false} compact={false}/>
+      <ExperienceSection
+        id="experience"
+        mode="about"
+        showViewAll={false}
+        compact={false}
+      />
     </>
   );
 }
