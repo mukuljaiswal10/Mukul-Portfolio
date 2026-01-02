@@ -90,7 +90,7 @@ export default function Hero({ id = "home" }) {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-3">
                   <StatCard value="10+" label="Projects" />
-                  <StatCard value="Fast" label="Performance" />
+                  <StatCard value="10+" label="Performance" />
                   <StatCard value="Responsive" label="All devices" />
                 </div>
               </div>
@@ -160,10 +160,10 @@ export default function Hero({ id = "home" }) {
                     </div>
                   </Reveal>
 
-                  <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                  <div className="mt-8 grid gap-4 sm:grid-cols-3 items-center">
                     <StatCard value="10+" label="Projects" />
-                    <StatCard value="Fast" label="Performance" />
-                    <StatCard value="Responsive" label="All devices" />
+                    <h2 className="text-white rounded-2xl border border-border/12 bg-foreground/[0.03] p-4 shadow-[0_16px_50px_rgba(0,0,0,0.25)]">Fast Performance</h2>
+                    <h2 className="text-white rounded-2xl border border-border/12 bg-foreground/[0.03] p-4 shadow-[0_16px_50px_rgba(0,0,0,0.25)]">Responsive <br/>All Devices</h2>
                   </div>
                 </div>
               </Parallax>

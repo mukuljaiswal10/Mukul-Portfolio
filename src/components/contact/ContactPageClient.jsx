@@ -773,7 +773,13 @@ export default function ContactPageClient() {
                     <input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      // className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[16px] sm:text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white/80 outline-none focus:border-[#FFD54A]/30
+                                focus:bg-foreground/[0.03]
+                                autofill:shadow-[inset_0_0_0px_1000px_rgba(11,14,20,0.92)]
+                                autofill:[-webkit-text-fill-color:rgba(255,255,255,0.92)]
+                                autofill:caret-white
+                                text-[16px] sm:text-sm"
                       placeholder="Mukul Jaiswal"
                       required
                     />
@@ -784,7 +790,13 @@ export default function ContactPageClient() {
                     <input
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      // className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[16px] sm:text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white/80 outline-none focus:border-[#FFD54A]/30
+                                focus:bg-foreground/[0.03]
+                                autofill:shadow-[inset_0_0_0px_1000px_rgba(11,14,20,0.92)]
+                                autofill:[-webkit-text-fill-color:rgba(255,255,255,0.92)]
+                                autofill:caret-white
+                                text-[16px] sm:text-sm"
                       placeholder="you@example.com"
                       required
                     />
@@ -797,7 +809,13 @@ export default function ContactPageClient() {
                     <textarea
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="mt-1 min-h-[140px] w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      // className="mt-1 min-h-[140px] w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[16px] sm:text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      className="mt-1 min-h-[140px] w-full resize-none rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white/80 outline-none focus:border-[#FFD54A]/30
+                                focus:bg-foreground/[0.03]
+                                autofill:shadow-[inset_0_0_0px_1000px_rgba(11,14,20,0.92)]
+                                autofill:[-webkit-text-fill-color:rgba(255,255,255,0.92)]
+                                autofill:caret-white
+                                text-[16px] sm:text-sm"
                       placeholder="Tell me what you want to build…"
                       required
                     />
