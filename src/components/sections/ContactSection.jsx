@@ -229,6 +229,7 @@ function ConfirmModal({
 
   // ✅ FIX: hooks must be before any return
   const [copied, setCopied] = useState(false);
+  const [countdown, setCountdown] = useState(7);
 
   useEffect(() => {
     mounted.current = true;
@@ -256,6 +257,25 @@ function ConfirmModal({
       document.body.style.overflow = prev || "";
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setCountdown(7);
+
+    const t = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(t);
+          onClose?.();
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(t);
+  }, [open, onClose]);
 
   // ✅ FIX: function also stays before any return
   const copySnapshot = async () => {
@@ -333,7 +353,12 @@ function ConfirmModal({
             </span>
 
             <div className="min-w-0">
-              <p className="text-xs text-white/60">AI Confirmation</p>
+              <p className="text-xs text-white/60">
+                AI Confirmation{" "}
+                <span className="ms-[20px]">Auto close in </span>
+                <span className="text-white/80 font-semibold">{countdown}</span>
+                s
+              </p>
 
               <h3
                 className={[

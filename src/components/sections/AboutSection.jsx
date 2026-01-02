@@ -10,11 +10,9 @@ import Card from "@/components/ui/Card";
 import Reveal from "@/components/ui/Reveal";
 import Parallax from "@/components/ui/Parallax";
 import LuxuryButton from "../ui/LuxuryButton";
+import ResumeGateButton from "@/components/resume/ResumeGateButton";
 
-export default function AboutSection({id="about"}) {
-
-  
-
+export default function AboutSection({ id = "about" }) {
   const pathname = usePathname();
   const isAboutPage = pathname === "/about";
 
@@ -37,7 +35,6 @@ export default function AboutSection({id="about"}) {
   }, [open, isAboutPage]);
 
   return (
-
     <section id={id} className="py-16">
       <Container>
         <Parallax from={18} to={-18}>
@@ -133,13 +130,12 @@ export default function AboutSection({id="about"}) {
                   </LuxuryButton>
                 )}
 
-                <LuxuryButton
-                  href="/resume/resume.pdf"
+                <ResumeGateButton
                   variant="outline"
                   className="cursor-pointer select-none"
                 >
                   Download Resume →
-                </LuxuryButton>
+                </ResumeGateButton>
               </div>
             </Card>
           </Reveal>

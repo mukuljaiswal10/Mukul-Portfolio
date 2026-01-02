@@ -879,3 +879,17 @@ body .border-white\/10 {
     opacity: 0.95;
   }
 }
+
+/* Fix browser autofill white bg on dark inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  caret-color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(11, 14, 20, 0.92) inset !important;
+  box-shadow: 0 0 0 1000px rgba(11, 14, 20, 0.92) inset !important;
+  transition: background-color 9999s ease-out 0s;
+}

@@ -19,7 +19,9 @@ function makeParticles(count = 12) {
 }
 
 export default function LuxuryButton({
+  as = "a",
   href,
+  onClick,
   children,
   variant = "primary", // "primary" | "outline"
   className = "",
@@ -34,7 +36,10 @@ export default function LuxuryButton({
   }, [burst]);
 
   const isPrimary = variant === "primary";
-  const Comp = href ? Link : "button";
+
+  // ✅ FIX: "as" prop respected. If as="button" => ALWAYS button (even if href exists)
+  const isButton = as === "button";
+  const Comp = isButton ? "button" : href ? Link : "a";
 
   // ✅ global premium button system (from globals.css)
   const skin = isPrimary ? "btn btn-primary" : "btn btn-outline";
@@ -54,12 +59,13 @@ export default function LuxuryButton({
       onHoverStart={() => setBurst(makeParticles(14))}
     >
       <Comp
-        href={href}
         {...props}
+        // ✅ button mode => no href at all
+        href={isButton ? undefined : href}
+        onClick={onClick}
         className={`${skin} ${base}`}
-        {...(href
-          ? { target: props.target, rel: props.rel }
-          : { type: props.type || "button" })}
+        // ✅ only button gets type
+        {...(isButton ? { type: props.type || "button" } : {})}
       >
         {/* soft glow ring */}
         <span

@@ -17,20 +17,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressContentEditableWarning>
-      {/* ✅ body: bg black रहेगा, but text force white नहीं करेंगे */}
+
       <body className="min-h-screen bg-black antialiased">
-        {/* ✅ global helpers */}
+
         <ScrollToHash />
         <CommandPalette />
 
-        {/* ✅ app shell */}
+
         <SplashLoader />
         <Navbar />
 
-        {/* ✅ client-only wrapper */}
+
         <StickyNavSearchShell />
 
-        {/* ✅ PROSE PREMIUM applied globally for page content */}
+
         <main className="pt-16 prose-premium">{children}</main>
 
         <Footer />
@@ -44,7 +44,6 @@ export default function RootLayout({ children }) {
         />
         <ScrollToTop />
 
-        {/* ✅ AI suggestion toast (kept at end) */}
         <AISuggestions />
       </body>
     </html>

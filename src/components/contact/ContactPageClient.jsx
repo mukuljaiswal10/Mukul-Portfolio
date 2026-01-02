@@ -229,8 +229,14 @@ function ConfirmModal({
               </span>
 
               <div className="min-w-0">
-                <p className="text-xs text-white/60">AI Confirmation</p>
-
+                <p className="text-xs text-white/60">
+                  AI Confirmation{" "}
+                  <span className="ms-[20px]">Auto close in </span>
+                  <span className="text-white/80 font-semibold">
+                    {countdown}
+                  </span>
+                  s
+                </p>
                 <h3
                   className={[
                     "mt-1 text-2xl font-bold tracking-tight",
@@ -241,17 +247,14 @@ function ConfirmModal({
                     ? "Message sent successfully ✅"
                     : "Oops! Message not sent"}
                 </h3>
-
                 <p className="mt-2 text-sm text-white/70">
                   {isSuccess
                     ? "Thanks! I received your message — I’ll reply soon (usually within 24 hours)."
                     : "No worries — you can still reach me instantly via WhatsApp/Email."}
                 </p>
-
                 <p className="mt-3 text-xs text-white/55">
                   Project: <span className="text-white/75">{projectLabel}</span>
                 </p>
-
                 {/* ✅ Snapshot (success + fail both) */}
                 {snapshot ? (
                   <div className="mt-4 rounded-2xl border border-white/12 bg-white/[0.03] p-4">
@@ -394,8 +397,6 @@ function ConfirmModal({
             </div>
 
             <p className="mt-3 text-xs text-white/45">
-              Auto close in{" "}
-              <span className="text-white/80 font-semibold">{countdown}</span>s
               • Tap outside or press Esc to close
             </p>
           </div>
