@@ -893,3 +893,127 @@ textarea:-webkit-autofill:focus {
   box-shadow: 0 0 0 1000px rgba(11, 14, 20, 0.92) inset !important;
   transition: background-color 9999s ease-out 0s;
 }
+
+/* ===========================
+   Premium Global Scrollbars
+   Works: Chrome/Edge/Safari
+   Firefox: limited styling
+   =========================== */
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 200, 106, 0.55) rgba(255, 255, 255, 0.06);
+}
+
+/* Chrome/Edge/Safari */
+*::-webkit-scrollbar {
+  width: 10px; /* vertical */
+  height: 10px; /* horizontal */
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 200, 106, 0.75),
+    rgba(233, 200, 106, 0.35)
+  );
+  border: 2px solid rgba(0, 0, 0, 0.35); /* gives padding premium feel */
+  box-shadow: 0 6px 18px rgba(233, 200, 106, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(233, 200, 106, 0.95),
+    rgba(233, 200, 106, 0.5)
+  );
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Optional: make scroll inside modal feel smoother */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===========================
+   Premium Scrollbars (Global)
+   Chrome/Edge/Safari: full
+   Firefox: limited
+   =========================== */
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(233, 200, 106, 0.55) rgba(255, 255, 255, 0.06);
+}
+
+/* Root scrollbar (page) - Chrome/Edge/Safari */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 200, 106, 0.75),
+    rgba(233, 200, 106, 0.35)
+  );
+  border: 2px solid rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 18px rgba(233, 200, 106, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(233, 200, 106, 0.95),
+    rgba(233, 200, 106, 0.5)
+  );
+}
+
+/* All inner scroll areas (modal, div overflow, etc.) */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(233, 200, 106, 0.75),
+    rgba(233, 200, 106, 0.35)
+  );
+  border: 2px solid rgba(0, 0, 0, 0.35);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}

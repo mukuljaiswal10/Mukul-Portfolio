@@ -1,324 +1,12 @@
-// "use client";
-
-// import { useMemo, useState, useEffect } from "react";
-// import LuxuryButton from "@/components/ui/LuxuryButton";
-
-// export default function ResumeGateButton({
-//   children = "Download Resume →",
-//   variant = "outline",
-//   className = "",
-//   purpose = "Resume Access",
-//   source = "resume-gate",
-// }) {
-//   const [open, setOpen] = useState(false);
-//   const [step, setStep] = useState("form"); // form | thanks | error
-//   const [loading, setLoading] = useState(false);
-//   const [msg, setMsg] = useState("");
-//   const [form, setForm] = useState({
-//     name: "",
-//     email: "",
-//     phone: "",
-//     consent: true,
-//     website: "", // honeypot (hidden)
-//   });
-
-//   // ✅ modal open => body scroll lock (mobile friendly)
-//   useEffect(() => {
-//     if (!open) return;
-//     const prev = document.body.style.overflow;
-//     document.body.style.overflow = "hidden";
-//     return () => {
-//       document.body.style.overflow = prev || "";
-//     };
-//   }, [open]);
-
-//   const canSubmit = useMemo(() => {
-//     const nameOk = form.name.trim().length >= 2;
-//     const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-//     const phoneOk = String(form.phone).replace(/\D/g, "").length >= 10;
-//     return nameOk && emailOk && phoneOk && form.consent && !loading;
-//   }, [form, loading]);
-
-//   async function onSubmit(e) {
-//     e.preventDefault();
-//     if (!canSubmit) return;
-
-//     /**
-//      * ✅ IMPORTANT FIX (about:blank issue)
-//      * - DO NOT use "noopener,noreferrer" in window.open features on some mobile browsers,
-//      *   because it can return a null/invalid handle while still opening a new tab,
-//      *   which causes fallback navigation AND leaves an extra blank tab.
-//      * - Instead: open normally, then set opener = null for safety.
-//      */
-//     const resumeTab = window.open("/resume/opening", "_blank");
-//     if (resumeTab) {
-//       try {
-//         resumeTab.opener = null;
-//       } catch {}
-//     }
-
-//     setLoading(true);
-//     setMsg("");
-
-//     try {
-//       const res = await fetch("/api/resume/lead", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({
-//           name: form.name.trim(),
-//           email: form.email.trim(),
-//           phone: form.phone.trim(),
-//           purpose,
-//           source,
-//           website: form.website, // honeypot
-//         }),
-//       });
-
-//       const data = await res.json().catch(() => ({}));
-
-//       if (!res.ok || !data?.ok) {
-//         setStep("error");
-//         setMsg(data?.message || "Something went wrong. Try again.");
-//         setLoading(false);
-
-//         // popup opened but fail => close it
-//         if (resumeTab && !resumeTab.closed) resumeTab.close();
-//         return;
-//       }
-
-//       setStep("thanks");
-
-//       const delay = Number(data?.openDelayMs || 1000);
-//       const url = data?.resumeUrl;
-
-//       // ✅ absolute url better (support absolute too)
-//       const fullUrl = url
-//         ? url.startsWith("http")
-//           ? url
-//           : `${window.location.origin}${url}`
-//         : null;
-
-//       setTimeout(() => {
-//         if (!fullUrl) return;
-
-//         // ✅ Redirect the already-opened tab (no extra about:blank)
-//         if (resumeTab && !resumeTab.closed) {
-//           try {
-//             resumeTab.location.replace(fullUrl);
-//           } catch {
-//             // if some browser blocks access, just try opening directly
-//             const w = window.open(fullUrl, "_blank");
-//             if (!w) window.location.assign(fullUrl);
-//           }
-//         } else {
-//           // popup blocked => try open, else same tab fallback
-//           const w = window.open(fullUrl, "_blank");
-//           if (!w) window.location.assign(fullUrl);
-//         }
-//       }, delay);
-
-//       // auto close modal after a bit
-//       setTimeout(() => {
-//         setOpen(false);
-//         setStep("form");
-//       }, 2500);
-
-//       setLoading(false);
-//     } catch (err) {
-//       setStep("error");
-//       setMsg("Network error. Please try again.");
-//       setLoading(false);
-
-//       if (resumeTab && !resumeTab.closed) resumeTab.close();
-//     }
-//   }
-
-//   return (
-//     <>
-//       {/* Trigger button with SAME luxury effects */}
-//       <LuxuryButton
-//         as="button"
-//         variant={variant}
-//         className={className}
-//         onClick={() => {
-//           setOpen(true);
-//           setStep("form");
-//           setMsg("");
-//         }}
-//       >
-//         {children}
-//       </LuxuryButton>
-
-//       {/* Modal */}
-//       {open ? (
-//         <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
-//           {/* backdrop */}
-//           <button
-//             aria-label="Close"
-//             onClick={() => !loading && setOpen(false)}
-//             className="absolute inset-0 bg-black/60"
-//           />
-
-//           {/* box (✅ mobile height small + inner scroll) */}
-//           <div className="relative w-full max-w-md max-h-[82vh] rounded-2xl border border-white/10 bg-[#0b0b0f] shadow-2xl overflow-hidden">
-//             {/* ✅ scroll container */}
-//             <div className="p-5 overflow-y-auto max-h-[82vh]">
-//               <div className="flex items-start justify-between gap-3">
-//                 <div>
-//                   <h3 className="text-lg font-semibold text-white">
-//                     {step === "thanks" ? "Thanks! ✅" : "Access Resume"}
-//                   </h3>
-//                   <p className="mt-1 text-sm text-white/70">
-//                     {step === "thanks"
-//                       ? "Resume opening in a new tab…"
-//                       : "Fill details to view the resume."}
-//                   </p>
-//                 </div>
-
-//                 <button
-//                   onClick={() => !loading && setOpen(false)}
-//                   className="rounded-lg px-2 py-1 text-white/70 hover:text-white"
-//                 >
-//                   ✕
-//                 </button>
-//               </div>
-
-//               {/* FORM */}
-//               {step === "form" ? (
-//                 <form onSubmit={onSubmit} className="mt-4 space-y-3">
-//                   {/* Honeypot (hidden) */}
-//                   <input
-//                     value={form.website}
-//                     onChange={(e) =>
-//                       setForm((p) => ({ ...p, website: e.target.value }))
-//                     }
-//                     className="hidden"
-//                     tabIndex={-1}
-//                     autoComplete="off"
-//                     aria-hidden="true"
-//                   />
-
-//                   <div>
-//                     <label className="text-xs text-white/70">Full Name *</label>
-//                     <input
-//                       value={form.name}
-//                       onChange={(e) =>
-//                         setForm((p) => ({ ...p, name: e.target.value }))
-//                       }
-//                       className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-//                       placeholder="Your name"
-//                       autoComplete="name"
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="text-xs text-white/70">Email *</label>
-//                     <input
-//                       type="email"
-//                       value={form.email}
-//                       onChange={(e) =>
-//                         setForm((p) => ({ ...p, email: e.target.value }))
-//                       }
-//                       className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-//                       placeholder="you@email.com"
-//                       autoComplete="email"
-//                     />
-//                   </div>
-
-//                   <div>
-//                     <label className="text-xs text-white/70">Phone *</label>
-//                     <input
-//                       type="tel"
-//                       inputMode="numeric"
-//                       value={form.phone}
-//                       onChange={(e) =>
-//                         setForm((p) => ({ ...p, phone: e.target.value }))
-//                       }
-//                       className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-//                       placeholder="10 digit phone"
-//                       autoComplete="tel"
-//                     />
-//                   </div>
-
-//                   <label className="flex items-start gap-2 text-xs text-white/70">
-//                     <input
-//                       type="checkbox"
-//                       checked={form.consent}
-//                       onChange={(e) =>
-//                         setForm((p) => ({ ...p, consent: e.target.checked }))
-//                       }
-//                       className="mt-0.5"
-//                     />
-//                     I agree to share my details for contact regarding
-//                     opportunities.
-//                   </label>
-
-//                   {msg ? <p className="text-sm text-red-300">{msg}</p> : null}
-
-//                   <LuxuryButton
-//                     as="button"
-//                     type="submit"
-//                     variant="primary"
-//                     className="w-full"
-//                     disabled={!canSubmit}
-//                   >
-//                     {loading ? "Submitting..." : "Submit & View Resume"}
-//                   </LuxuryButton>
-
-//                   <p className="text-[11px] text-white/50">
-//                     Resume link expires in ~10 minutes. (premium security)
-//                   </p>
-//                 </form>
-//               ) : null}
-
-//               {/* THANKS */}
-//               {step === "thanks" ? (
-//                 <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-//                   ✅ Details received. Opening resume…
-//                   <div className="mt-2 text-xs text-white/60">
-//                     If it doesn’t open, allow popups for this site.
-//                   </div>
-//                 </div>
-//               ) : null}
-
-//               {/* ERROR */}
-//               {step === "error" ? (
-//                 <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
-//                   {msg || "Something went wrong."}
-//                   <div className="mt-3">
-//                     <LuxuryButton
-//                       as="button"
-//                       variant="outline"
-//                       onClick={() => {
-//                         setStep("form");
-//                         setMsg("");
-//                       }}
-//                     >
-//                       Try Again
-//                     </LuxuryButton>
-//                   </div>
-//                 </div>
-//               ) : null}
-//             </div>
-//           </div>
-//         </div>
-//       ) : null}
-//     </>
-//   );
-// }
-
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import LuxuryButton from "@/components/ui/LuxuryButton";
 
-function ModalPortal({ children }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-  return createPortal(children, document.body);
-}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const onlyDigits = (v) => String(v || "").replace(/\D/g, "");
 
 export default function ResumeGateButton({
   children = "Download Resume →",
@@ -327,6 +15,9 @@ export default function ResumeGateButton({
   purpose = "Resume Access",
   source = "resume-gate",
 }) {
+  const ridRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
+
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState("form"); // form | thanks | error
   const [loading, setLoading] = useState(false);
@@ -336,48 +27,88 @@ export default function ResumeGateButton({
     name: "",
     email: "",
     phone: "",
-    purpose: "", // ✅ optional field (user can fill)
+    purpose: purpose, // optional
     consent: true,
-    website: "", // honeypot (hidden)
+    website: "", // honeypot
   });
 
-  // ✅ Body scroll lock when modal open
+  // ✅ portal mount
+  useEffect(() => setMounted(true), []);
+
+  // ✅ body scroll lock + ESC close
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+
+    const onKey = (e) => {
+      if (e.key === "Escape" && !loading) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+
     return () => {
       document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [open, loading]);
+
+  const errors = useMemo(() => {
+    const e = {};
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const phone = onlyDigits(form.phone);
+
+    if (name.length < 2) e.name = "Enter at least 2 characters.";
+    if (!EMAIL_RE.test(email)) e.email = "Enter a valid email.";
+    if (phone.length !== 10) e.phone = "Enter a valid 10-digit mobile number.";
+    if (!form.consent) e.consent = "Consent is required.";
+    return e;
+  }, [form]);
 
   const canSubmit = useMemo(() => {
-    const nameOk = form.name.trim().length >= 2;
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-    const phoneOk = String(form.phone).replace(/\D/g, "").length === 10;
-    return nameOk && emailOk && phoneOk && form.consent && !loading;
-  }, [form, loading]);
+    return (
+      !loading &&
+      !form.website && // honeypot must stay empty
+      form.consent &&
+      Object.keys(errors).length === 0
+    );
+  }, [loading, form.website, form.consent, errors]);
 
-  const closeModal = () => {
-    if (loading) return;
-    setOpen(false);
+  const resetModal = () => {
     setStep("form");
     setMsg("");
+    setLoading(false);
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      purpose: purpose,
+      consent: true,
+      website: "",
+    });
   };
 
   async function onSubmit(e) {
     e.preventDefault();
-    if (!canSubmit) return;
+    setMsg("");
 
-    // ✅ user gesture ke andar hi blank tab open (popup blocker avoid)
-    const resumeTab = window.open(
-      "/resume/opening",
-      "_blank",
-      "noopener,noreferrer"
-    );
+    if (!canSubmit) {
+      setMsg("Please fix the highlighted fields.");
+      return;
+    }
+
+    // ✅ unique request id (per click)
+    const rid = (
+      globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`
+    )
+      .toString()
+      .replaceAll(".", "");
+    ridRef.current = rid;
+
+    // ✅ user gesture: open opening page tab (NOT about:blank)
+    const resumeTab = window.open(`/resume/opening?rid=${rid}`, "_blank"); // ✅ keep max compatible
 
     setLoading(true);
-    setMsg("");
 
     try {
       const res = await fetch("/api/resume/lead", {
@@ -386,9 +117,8 @@ export default function ResumeGateButton({
         body: JSON.stringify({
           name: form.name.trim(),
           email: form.email.trim(),
-          phone: form.phone.trim(),
-          // ✅ optional purpose: user fill kare to use, else prop purpose
-          purpose: (form.purpose || "").trim() || purpose,
+          phone: String(form.phone).replace(/\D/g, ""),
+          purpose: (form.purpose || purpose).trim(),
           source,
           website: form.website,
         }),
@@ -406,101 +136,121 @@ export default function ResumeGateButton({
 
       setStep("thanks");
 
-      const delay = Number(data?.openDelayMs || 1000);
-      const url = data?.resumeUrl; // expected like "/api/resume/download?token=..."
+      // ✅ build absolute url
+      const url = data?.resumeUrl; // like "/api/resume/download?token=..."
       const fullUrl = url ? `${window.location.origin}${url}` : null;
 
-      setTimeout(() => {
-        if (!fullUrl) return;
-        if (resumeTab && !resumeTab.closed) {
-          // ✅ about:blank avoid + safer replace
-          resumeTab.location.replace(fullUrl);
-        } else {
-          window.location.href = fullUrl;
-        }
-      }, delay);
+      if (!fullUrl) {
+        setStep("error");
+        setMsg("Resume link missing. Please try again.");
+        setLoading(false);
+        if (resumeTab && !resumeTab.closed) resumeTab.close();
+        return;
+      }
 
-      setTimeout(() => {
-        setOpen(false);
-        setStep("form");
-      }, 2500);
+      // ✅ IMPORTANT: opening page will read this and redirect itself after 5s
+      // Save BOTH keys for compatibility (some opening code reads url, some reads fullUrl)
+      const payload = {
+        url: fullUrl,
+        fullUrl: fullUrl,
+        createdAt: Date.now(),
+        delayMs: 5000, // ✅ your requirement
+      };
+
+      // localStorage.setItem(`resume_gate:${rid}`, JSON.stringify({fullUrl, createdAt: Date.now(),delayMs:5000}));
+      localStorage.setItem(`resume_gate:${rid}`, JSON.stringify(payload));
+
+      // ✅ Best: send instantly to opening tab (no polling wait)
+      try {
+        resumeTab?.postMessage(
+          { type: "RESUME_READY", rid, url: fullUrl, delayMs: 5000 },
+          window.location.origin
+        );
+      } catch (err) {}
+
+      // ✅ Popup blocked fallback: open in same tab after 5s
+      if (!resumeTab) {
+        setMsg("Popup blocked. Please allow popups/downloads for this site.");
+        setTimeout(() => {
+          window.location.href = fullUrl;
+        }, 5000);
+      }
+
+      // ✅ close modal quickly so it never flashes again
+      setTimeout(() => setOpen(false), 150);
 
       setLoading(false);
+
+      // ✅ reset form later
+      setTimeout(() => resetModal(), 6500);
     } catch (err) {
       setStep("error");
       setMsg("Network error. Please try again.");
       setLoading(false);
-      if (resumeTab && !resumeTab.closed) resumeTab.close();
     }
   }
 
-  return (
-    <>
-      {/* Trigger button */}
-      <LuxuryButton
-        as="button"
-        variant={variant}
-        className={className}
-        onClick={() => {
-          setOpen(true);
-          setStep("form");
-          setMsg("");
-        }}
-      >
-        {children}
-      </LuxuryButton>
+  const Modal = (
+    <div
+      className="fixed inset-0 z-[999999] isolate"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Access Resume"
+    >
+      {/* Backdrop */}
+      <button
+        aria-label="Close"
+        onClick={() => (!loading ? setOpen(false) : null)}
+        className="absolute inset-0 bg-black/70 backdrop-blur-[3px]"
+      />
 
-      {/* ✅ Modal via Portal - fixes mobile overlap/z-index issues */}
-      {open ? (
-        <ModalPortal>
+      {/* Center wrapper */}
+      <div className="relative grid min-h-[100dvh] place-items-center p-4 sm:p-6">
+        {/* Panel */}
+        <div className="relative w-full max-w-[560px] overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-b from-[#0d0d12] to-[#060609] shadow-2xl ring-1 ring-white/10">
+          {/* Glow */}
           <div
-            className="
-              fixed inset-0 z-[2147483647]
-              flex min-h-[100dvh] w-full items-center justify-center
-              px-4 py-8
-            "
-          >
-            {/* ✅ Full overlay background */}
-            <div
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={closeModal}
-            />
+            aria-hidden
+            className="pointer-events-none absolute -inset-24 opacity-60 blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle at 25% 15%, rgba(233,200,106,0.22), transparent 55%)",
+            }}
+          />
 
-            {/* ✅ Centered responsive box */}
-            <div
-              role="dialog"
-              aria-modal="true"
-              className="
-                relative w-full max-w-md
-                rounded-2xl border border-white/10
-                bg-[#0b0b0f] p-5 shadow-2xl
-              "
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-semibold text-white">
-                    {step === "thanks" ? "Thanks! ✅" : "Access Resume"}
-                  </h3>
-                  <p className="mt-1 text-sm text-white/70">
-                    {step === "thanks"
-                      ? "Resume opening in a new tab…"
-                      : "Fill details to view the resume."}
-                  </p>
-                </div>
-
-                <button
-                  onClick={closeModal}
-                  className="rounded-lg px-2 py-1 text-white/70 hover:text-white"
-                  aria-label="Close modal"
-                >
-                  ✕
-                </button>
+          {/* Header */}
+          <div className="relative flex items-start justify-between gap-4 p-5 sm:p-6">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                Secure Resume Gateway
               </div>
 
+              <h3 className="mt-3 text-xl font-semibold text-white">
+                {step === "thanks" ? "Thanks! ✅" : "Access Resume"}
+              </h3>
+              <p className="mt-1 text-sm text-white/70">
+                {step === "thanks"
+                  ? "Opening page will show ~5 seconds, then resume opens."
+                  : "Fill details to view the resume."}
+              </p>
+            </div>
+
+            <button
+              onClick={() => (!loading ? setOpen(false) : null)}
+              className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-white/80 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Body (scrollable if needed) */}
+          <div className="relative px-5 pb-5 sm:px-6 sm:pb-6">
+            <div className="max-h-[70dvh] overflow-y-auto pr-1">
               {/* FORM */}
               {step === "form" ? (
-                <form onSubmit={onSubmit} className="mt-4 space-y-3">
-                  {/* Honeypot (hidden) */}
+                <form onSubmit={onSubmit} className="space-y-3">
+                  {/* honeypot */}
                   <input
                     value={form.website}
                     onChange={(e) =>
@@ -512,72 +262,67 @@ export default function ResumeGateButton({
                     aria-hidden="true"
                   />
 
-                  <div>
-                    <label className="text-xs text-white/70">Full Name *</label>
-                    <input
-                      value={form.name}
-                      onChange={(e) =>
-                        setForm((p) => ({ ...p, name: e.target.value }))
-                      }
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-                      placeholder="Your name"
-                      required
-                    />
-                  </div>
+                  <Field
+                    label="Full Name *"
+                    placeholder="Your name"
+                    value={form.name}
+                    error={errors.name}
+                    onChange={(v) => setForm((p) => ({ ...p, name: v }))}
+                    autoComplete="name"
+                  />
 
-                  <div>
-                    <label className="text-xs text-white/70">Email *</label>
-                    <input
-                      value={form.email}
-                      onChange={(e) =>
-                        setForm((p) => ({ ...p, email: e.target.value }))
-                      }
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-                      placeholder="you@email.com"
-                      required
-                      inputMode="email"
-                    />
-                  </div>
+                  <Field
+                    label="Email *"
+                    placeholder="you@email.com"
+                    value={form.email}
+                    error={errors.email}
+                    onChange={(v) => setForm((p) => ({ ...p, email: v }))}
+                    autoComplete="email"
+                  />
 
+                  {/* Phone */}
                   <div>
                     <label className="text-xs text-white/70">
-                      Phone (10 digit) *
+                      Phone (10 digits) *
                     </label>
                     <input
                       value={form.phone}
                       onChange={(e) => {
-                        // ✅ digits only + max 10
-                        const digits = e.target.value
-                          .replace(/\D/g, "")
-                          .slice(0, 10);
+                        const digits = onlyDigits(e.target.value).slice(0, 10);
                         setForm((p) => ({ ...p, phone: digits }));
                       }}
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-                      placeholder="9876543210"
-                      required
+                      type="tel"
                       inputMode="numeric"
-                      pattern="\d{10}"
+                      pattern="[0-9]*"
                       maxLength={10}
+                      className={[
+                        "mt-1 w-full rounded-2xl border bg-white/5 px-4 py-3 text-white outline-none",
+                        "focus:border-white/30",
+                        errors.phone ? "border-red-400/45" : "border-white/10",
+                      ].join(" ")}
+                      placeholder="10 digit mobile number"
+                      autoComplete="tel"
                     />
-                    <p className="mt-1 text-[11px] text-white/50">
-                      Only numbers • exactly 10 digits
-                    </p>
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-white/55">
+                      <span>Only numbers allowed</span>
+                      <span>{onlyDigits(form.phone).length}/10</span>
+                    </div>
+                    {errors.phone ? (
+                      <p className="mt-1 text-xs text-red-300">
+                        {errors.phone}
+                      </p>
+                    ) : null}
                   </div>
 
-                  <div>
-                    <label className="text-xs text-white/70">
-                      Purpose (optional)
-                    </label>
-                    <input
-                      value={form.purpose}
-                      onChange={(e) =>
-                        setForm((p) => ({ ...p, purpose: e.target.value }))
-                      }
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none focus:border-white/25"
-                      placeholder="e.g. Hiring / Freelance / Collaboration"
-                    />
-                  </div>
+                  <Field
+                    label="Purpose (optional)"
+                    placeholder="Resume Access"
+                    value={form.purpose}
+                    error={null}
+                    onChange={(v) => setForm((p) => ({ ...p, purpose: v }))}
+                  />
 
+                  {/* Consent */}
                   <label className="flex items-start gap-2 text-xs text-white/70">
                     <input
                       type="checkbox"
@@ -590,6 +335,9 @@ export default function ResumeGateButton({
                     I agree to share my details for contact regarding
                     opportunities.
                   </label>
+                  {errors.consent ? (
+                    <p className="text-xs text-red-300">{errors.consent}</p>
+                  ) : null}
 
                   {msg ? <p className="text-sm text-red-300">{msg}</p> : null}
 
@@ -603,28 +351,29 @@ export default function ResumeGateButton({
                     {loading ? "Submitting..." : "Submit & View Resume"}
                   </LuxuryButton>
 
-                  <p className="text-[11px] text-white/50">
-                    Link opens after submit (secure). If popup blocked, it will
-                    open in same tab.
-                  </p>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-[11px] text-white/60">
+                    🔒 Privacy-first: Details saved securely. <br />⏳ Secure
+                    link is time-limited.
+                  </div>
                 </form>
               ) : null}
 
               {/* THANKS */}
               {step === "thanks" ? (
-                <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
-                  ✅ Details received. Opening resume…
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
+                  ✅ Details received. Opening in ~5 seconds…
                   <div className="mt-2 text-xs text-white/60">
-                    If it doesn’t open, allow popups for this site.
+                    Tip: If it doesn’t open, allow popups/downloads for this
+                    site.
                   </div>
                 </div>
               ) : null}
 
               {/* ERROR */}
               {step === "error" ? (
-                <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                <div className="rounded-2xl border border-red-500/25 bg-red-500/10 p-4 text-sm text-red-200">
                   {msg || "Something went wrong."}
-                  <div className="mt-3">
+                  <div className="mt-3 flex gap-2">
                     <LuxuryButton
                       as="button"
                       variant="outline"
@@ -635,13 +384,61 @@ export default function ResumeGateButton({
                     >
                       Try Again
                     </LuxuryButton>
+                    <LuxuryButton
+                      as="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                    >
+                      Close
+                    </LuxuryButton>
                   </div>
                 </div>
               ) : null}
             </div>
           </div>
-        </ModalPortal>
-      ) : null}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Trigger */}
+      <LuxuryButton
+        as="button"
+        variant={variant}
+        className={className}
+        onClick={() => {
+          setOpen(true);
+          setStep("form");
+          setMsg("");
+        }}
+      >
+        {children}
+      </LuxuryButton>
+
+      {/* ✅ PORTAL => no overlap, true center */}
+      {mounted && open ? createPortal(Modal, document.body) : null}
     </>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, error, autoComplete }) {
+  return (
+    <div>
+      <label className="text-xs text-white/70">{label}</label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={[
+          "mt-1 w-full rounded-2xl border bg-white/5 px-4 py-3 text-white outline-none",
+          "focus:border-white/30",
+          error ? "border-red-400/45" : "border-white/10",
+        ].join(" ")}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+      />
+      {error ? <p className="mt-1 text-xs text-red-300">{error}</p> : null}
+    </div>
   );
 }
