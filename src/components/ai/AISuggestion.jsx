@@ -22,9 +22,9 @@ function toActionArray(maybe) {
  * बाकी logic SAME रखा है.
  */
 
-const START_DELAY_MS = 6000; // (tumne 4->6 already set bola tha) - अगर 4 chahiye to 4000 कर देना
+const START_DELAY_MS = 5000; // (tumne 4->6 already set bola tha) - अगर 4 chahiye to 4000 कर देना
 const SHOW_MS = 7000;
-const NEXT_GAP_MS = 15000;
+const NEXT_GAP_MS = 12000;
 
 function isMobileLike() {
   if (typeof window === "undefined") return false;
