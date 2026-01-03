@@ -68,7 +68,6 @@ function highlightParts(text, q) {
 
   // tokens: "tailwind css" => ["tailwind","css"]
   const tokens = query.split(/\s+/).filter(Boolean);
-
   const lower = s.toLowerCase();
 
   // best match choose: earliest index, and same index pe longer token
@@ -197,12 +196,11 @@ export default function StickyNavSearch() {
   }, [open]);
 
   // ✅ base actions + dynamic actions
-  const { actions, tags } = useMemo(() => {
+  const { actions } = useMemo(() => {
     const res = getSearchActions({ pathname });
 
     // ✅ backward compatible: agar old version array return kare to bhi chale
     const baseActions = Array.isArray(res) ? res : res?.actions || [];
-    const baseTags = Array.isArray(res?.tags) ? res.tags : [];
 
     const dyn = dynActions || [];
 
@@ -215,7 +213,6 @@ export default function StickyNavSearch() {
 
     return {
       actions: [...map.values()],
-      tags: baseTags, // ✅ yahi tags filterActions me use honge
     };
   }, [pathname, dynActions]);
 
@@ -248,6 +245,7 @@ export default function StickyNavSearch() {
     });
   };
 
+  // ✅ run item (navigation + section scroll)
   const runItem = (item) => {
     if (!item) return;
 
@@ -269,16 +267,16 @@ export default function StickyNavSearch() {
         return;
       }
 
+      // ✅ if already on home => scroll
       if (isHome) {
-        // already on home: just scroll
         setTimeout(() => {
           const el = document.getElementById(hash);
           el?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 60);
+        }, 80);
         return;
       }
 
-      // navigate to home with hash, browser will scroll
+      // ✅ go to home with hash
       router.push(`/#${hash}`);
       return;
     }
@@ -286,23 +284,39 @@ export default function StickyNavSearch() {
     router.push(href);
   };
 
-  // ✅ keyboard
+  // ✅ keyboard (FIXED: CAPTURE mode so it wins against other Ctrl+K handlers)
   useEffect(() => {
     const onKey = (e) => {
       const isK = e.key?.toLowerCase() === "k";
       const mod = e.metaKey || e.ctrlKey;
 
+      // ✅ Ctrl+K toggle (stop other components from hijacking)
       if (mod && isK) {
         e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
         setOpen((v) => !v);
         return;
       }
 
       if (!open) return;
 
+      // ✅ When modal open, stop other listeners (Enter/Arrows/Esc)
+      if (
+        e.key === "Escape" ||
+        e.key === "Enter" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowUp"
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
+      }
+
       if (e.key === "Escape") {
         setOpen(false);
         setNoHitMsg("");
+        return;
       }
 
       const list = q.trim()
@@ -311,13 +325,16 @@ export default function StickyNavSearch() {
         ? recentActions
         : filtered;
 
-      if (e.key === "ArrowDown")
+      if (e.key === "ArrowDown") {
         setActive((x) => Math.min(x + 1, Math.max(list.length - 1, 0)));
-      if (e.key === "ArrowUp") setActive((x) => Math.max(x - 1, 0));
+        return;
+      }
+      if (e.key === "ArrowUp") {
+        setActive((x) => Math.max(x - 1, 0));
+        return;
+      }
 
       if (e.key === "Enter") {
-        e.preventDefault();
-
         // ✅ If user typed something but list empty -> don't navigate
         if (q.trim() && !list.length) {
           setNoHitMsg("Not found. Try a different keyword.");
@@ -330,8 +347,9 @@ export default function StickyNavSearch() {
       }
     };
 
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // ✅ capture=true (IMPORTANT)
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [open, filtered, active, q, recentActions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ✅ focus on open

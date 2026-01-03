@@ -19,22 +19,13 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressContentEditableWarning>
 
       <body className="min-h-screen bg-black antialiased">
-
         <ScrollToHash />
         <CommandPalette />
-
-
         <SplashLoader />
         <Navbar />
-
-
         <StickyNavSearchShell />
-
-
         <main className="pt-16 prose-premium">{children}</main>
-
         <Footer />
-
         {/* ✅ extras */}
         <StickyCTA
           whatsappNumber="919919371299"
@@ -43,7 +34,6 @@ export default function RootLayout({ children }) {
           showCall={false}
         />
         <ScrollToTop />
-
         <AISuggestions />
       </body>
     </html>
