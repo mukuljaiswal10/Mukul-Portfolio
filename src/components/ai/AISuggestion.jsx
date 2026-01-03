@@ -460,7 +460,7 @@ import { aiSuggestions } from "@/data/aiSuggestions";
 
 const START_DELAY_MS = 5000;
 const SHOW_MS = 7000;
-const NEXT_GAP_MS = 12000;
+const NEXT_GAP_MS = 20000;
 
 function isMobileLike() {
   if (typeof window === "undefined") return false;
