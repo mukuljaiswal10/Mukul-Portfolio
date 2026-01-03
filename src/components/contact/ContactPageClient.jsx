@@ -668,7 +668,7 @@ export default function ContactPageClient() {
                     <input
                       value={budget}
                       onChange={(e) => setBudget(e.target.value)}
-                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[16px] sm:text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
                       placeholder="e.g. ₹15k–₹30k"
                     />
                   </div>
@@ -677,7 +677,7 @@ export default function ContactPageClient() {
                     <input
                       value={timeline}
                       onChange={(e) => setTimeline(e.target.value)}
-                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
+                      className="mt-1 w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-[16px] sm:text-sm text-white/80 outline-none focus:border-[#FFD54A]/30"
                       placeholder="e.g. 7–10 days"
                     />
                   </div>

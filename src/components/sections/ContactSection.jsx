@@ -924,6 +924,7 @@ export default function ContactSection({ id = "contact", compact = false }) {
                           <div className="mt-2">
                             <Input
                               value={otherText}
+                              className="text-[16px] sm:text-sm"
                               onChange={(e) => setOtherSafe(e.target.value)}
                               placeholder="Type project category…"
                             />
