@@ -73,9 +73,7 @@ export const SEARCH_MANIFEST = {
         "Deployment",
         "Architecture",
         "Scalability",
-        "JavaScript",
         "TypeScript",
-        "Css",
     ],
 
     /* ---------------------------------------------
