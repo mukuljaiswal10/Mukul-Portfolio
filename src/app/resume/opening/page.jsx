@@ -1,5 +1,4 @@
 // "use client";
-
 // import { useEffect, useMemo, useRef, useState } from "react";
 // import { useSearchParams, useRouter } from "next/navigation";
 // import LuxuryButton from "@/components/ui/LuxuryButton";
@@ -17,6 +16,13 @@
 
 //   const redirectedRef = useRef(false);
 //   const startedCountdownRef = useRef(false);
+
+//   // ✅ NEW: If rid missing => directly go to otp-failed (no UI change)
+//   useEffect(() => {
+//     if (!rid) {
+//       router.replace("/resume/otp-failed?reason=missing_rid");
+//     }
+//   }, [rid, router]);
 
 //   const resolveUrlFromData = (data) => {
 //     const u = data?.fullUrl || data?.url || null;
@@ -91,6 +97,7 @@
 
 //   // ✅ Poll localStorage (fallback)
 //   useEffect(() => {
+//     // NOTE: rid missing case already redirected above
 //     if (!key) {
 //       setStatus("missing");
 //       return;
@@ -914,11 +921,9 @@ export default function ResumeOpeningPage() {
   const redirectedRef = useRef(false);
   const startedCountdownRef = useRef(false);
 
-  // ✅ NEW: If rid missing => directly go to otp-failed (no UI change)
+  // ✅ If rid missing => go to failed (same behavior you had)
   useEffect(() => {
-    if (!rid) {
-      router.replace("/resume/otp-failed?reason=missing_rid");
-    }
+    if (!rid) router.replace("/resume/otp-failed?reason=missing_rid");
   }, [rid, router]);
 
   const resolveUrlFromData = (data) => {
@@ -934,19 +939,18 @@ export default function ResumeOpeningPage() {
     const delayMs = Number(data?.delayMs || 5000);
     const secs = Math.max(1, Math.ceil(delayMs / 1000));
 
-    setPayload({ ...data, fullUrl: url }); // normalize
+    setPayload({ ...data, fullUrl: url });
     setSecondsLeft(secs);
     setStatus("ready");
   };
 
-  // ✅ SCREEN LOCK (no scroll / no accidental gestures / no context menu)
+  // ✅ SCREEN LOCK (no scroll / accidental gestures)
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     const prevent = (e) => e.preventDefault();
     const onKey = (e) => {
-      // Allow Esc only (optional)
       if (e.key === "Escape") return;
       e.preventDefault();
     };
@@ -965,7 +969,7 @@ export default function ResumeOpeningPage() {
     };
   }, []);
 
-  // ✅ FAST PATH: opener -> postMessage (best reliability)
+  // ✅ FAST PATH: opener -> postMessage
   useEffect(() => {
     if (!rid) return;
 
@@ -994,7 +998,6 @@ export default function ResumeOpeningPage() {
 
   // ✅ Poll localStorage (fallback)
   useEffect(() => {
-    // NOTE: rid missing case already redirected above
     if (!key) {
       setStatus("missing");
       return;
@@ -1009,7 +1012,6 @@ export default function ResumeOpeningPage() {
       try {
         const raw = localStorage.getItem(key);
 
-        // max 6s wait
         if (!raw) {
           if (Date.now() - startedAt > 6000) {
             setStatus("missing");
@@ -1021,7 +1023,6 @@ export default function ResumeOpeningPage() {
 
         const data = JSON.parse(raw);
 
-        // expire after 2 minutes
         const age = Date.now() - (data?.createdAt || 0);
         if (age > 2 * 60 * 1000) {
           localStorage.removeItem(key);
@@ -1039,7 +1040,7 @@ export default function ResumeOpeningPage() {
     return () => clearTimeout(t);
   }, [key]);
 
-  // ✅ Countdown + redirect (NO status toggling, so interval never gets cleared)
+  // ✅ Countdown + redirect
   useEffect(() => {
     if (status !== "ready") return;
     if (!payload?.fullUrl) return;
@@ -1062,8 +1063,6 @@ export default function ResumeOpeningPage() {
         } catch {}
 
         redirectedRef.current = true;
-
-        // ✅ open resume in THIS tab
         window.location.replace(payload.fullUrl);
       }
     }, 1000);
@@ -1076,19 +1075,17 @@ export default function ResumeOpeningPage() {
     try {
       if (key) localStorage.removeItem(key);
     } catch {}
-
     window.close();
     router.push("/");
   };
 
-  // ===== UI-only helpers (NO logic change) =====
+  // ===== UI-only helpers =====
   const totalSecs = useMemo(() => {
     const d = Number(payload?.delayMs || 5000);
     return Math.max(1, Math.ceil(d / 1000));
   }, [payload?.delayMs]);
 
   const progress = useMemo(() => {
-    // 0..1
     const done = Math.min(totalSecs, Math.max(0, totalSecs - secondsLeft));
     return totalSecs ? done / totalSecs : 0;
   }, [secondsLeft, totalSecs]);
@@ -1110,7 +1107,6 @@ export default function ResumeOpeningPage() {
         sub: "Starting privacy-safe checks and preparing the secure session.",
       };
     }
-    // ready
     if (secondsLeft >= 4) {
       return {
         badge: "AI Validation",
@@ -1143,7 +1139,7 @@ export default function ResumeOpeningPage() {
     const step = (() => {
       if (status !== "ready") return 0;
       const s = Math.max(1, Math.min(5, secondsLeft));
-      return 6 - s; // 1..5
+      return 6 - s;
     })();
 
     const mk = (label, i, meta) => {
@@ -1160,7 +1156,7 @@ export default function ResumeOpeningPage() {
     ];
   }, [status, secondsLeft]);
 
-  // Fake “AI stream” (UI only)
+  // Fake stream
   const streamLines = useMemo(() => {
     const s = secondsLeft;
     const base = [
@@ -1181,10 +1177,7 @@ export default function ResumeOpeningPage() {
         "fallback:polling local storage",
       ];
     }
-
-    if (status === "waiting") {
-      return base.slice(0, 4);
-    }
+    if (status === "waiting") return base.slice(0, 4);
 
     if (status === "ready") {
       if (s >= 4) return base.slice(0, 5);
@@ -1197,13 +1190,12 @@ export default function ResumeOpeningPage() {
   }, [rid, status, secondsLeft]);
 
   return (
-    // ✅ UI-only: full-screen overlay so header/menu cannot be interacted with
     <div className="fixed inset-0 z-[999999] isolate">
-      <main className="min-h-[100dvh] bg-[#07070b] px-4 py-10 sm:px-6">
-        {/* Background: deep luxury + aurora + noise */}
+      {/* ✅ Centered wrapper (no cut) */}
+      <main className="relative flex min-h-[100dvh] items-center justify-center bg-[#07070b] px-4 py-6 sm:px-6 sm:py-10">
+        {/* Background */}
         <div aria-hidden className="pointer-events-none fixed inset-0 -z-10">
           <div className="absolute inset-0 bg-[#07070b]" />
-
           <div
             className="absolute inset-0 opacity-80"
             style={{
@@ -1216,9 +1208,9 @@ export default function ResumeOpeningPage() {
           <div className="absolute inset-0 vignette" />
         </div>
 
-        {/* Center */}
-        <div className="mx-auto grid min-h-[calc(100dvh-5rem)] max-w-3xl place-items-center">
-          <div className="relative w-full overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-b from-[#0d0d12] to-[#060609] p-5 shadow-[0_45px_160px_rgba(0,0,0,0.75)] ring-1 ring-white/10 sm:p-7">
+        {/* ✅ Card: max-height to avoid bottom cut (NO scroll) */}
+        <div className="w-full max-w-3xl">
+          <div className="relative w-full overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-b from-[#0d0d12] to-[#060609] p-5 shadow-[0_45px_160px_rgba(0,0,0,0.75)] ring-1 ring-white/10 sm:p-7 cardFit">
             {/* Animated conic border */}
             <div
               aria-hidden
@@ -1230,15 +1222,15 @@ export default function ResumeOpeningPage() {
               }}
             />
 
-            {/* Sparkles / particles */}
+            {/* Sparkles */}
             <div aria-hidden className="pointer-events-none absolute inset-0">
-              {Array.from({ length: 12 }).map((_, i) => (
+              {Array.from({ length: 10 }).map((_, i) => (
                 <span key={i} className={`sparkle p${i + 1}`} />
               ))}
             </div>
 
             {/* Header */}
-            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="relative flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/70">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulseDot" />
@@ -1262,25 +1254,21 @@ export default function ResumeOpeningPage() {
             </div>
 
             {/* Main grid */}
-            <div className="relative mt-6 grid gap-5 sm:grid-cols-[200px_1fr] sm:items-start">
-              {/* Left: “AI Core” loader */}
+            <div className="relative mt-5 grid gap-4 sm:grid-cols-[200px_1fr] sm:items-start">
+              {/* Left loader */}
               <div className="mx-auto sm:mx-0">
-                <div className="relative h-48 w-48">
-                  {/* outer glow */}
+                <div className="relative h-44 w-44 sm:h-48 sm:w-48 coreFit">
                   <div className="absolute -inset-8 rounded-full blur-3xl opacity-70 aiGlow" />
 
-                  {/* rotating rings */}
                   <div className="absolute inset-0 rounded-full ringSpin">
                     <div className="absolute inset-0 rounded-full ringA" />
                     <div className="absolute inset-[10px] rounded-full ringB" />
                     <div className="absolute inset-[22px] rounded-full ringC" />
                   </div>
 
-                  {/* scanning arc */}
                   <div className="absolute inset-[6px] rounded-full scanArc" />
 
-                  {/* center core */}
-                  <div className="absolute inset-[28px] rounded-full border border-white/10 bg-white/5 backdrop-blur flex items-center justify-center">
+                  <div className="absolute inset-[26px] rounded-full border border-white/10 bg-white/5 backdrop-blur flex items-center justify-center">
                     <div className="text-center">
                       <p className="text-[11px] text-white/60">AI Core</p>
                       <p className="mt-1 text-3xl font-semibold text-white tabular-nums">
@@ -1292,8 +1280,7 @@ export default function ResumeOpeningPage() {
                           : "Warming up…"}
                       </p>
 
-                      {/* micro dots */}
-                      <div className="mt-3 flex items-center justify-center gap-1.5">
+                      <div className="mt-2.5 flex items-center justify-center gap-1.5">
                         <span className="dot d1" />
                         <span className="dot d2" />
                         <span className="dot d3" />
@@ -1305,9 +1292,9 @@ export default function ResumeOpeningPage() {
                 </div>
               </div>
 
-              {/* Right: checks + “AI log” + progress */}
+              {/* Right */}
               <div className="min-w-0">
-                {/* Progress bar */}
+                {/* Progress */}
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <div className="flex items-center justify-between gap-3 text-xs text-white/60">
                     <span className="truncate">
@@ -1332,7 +1319,7 @@ export default function ResumeOpeningPage() {
                     />
                   </div>
 
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     {checks.map((c) => (
                       <CheckRow
                         key={c.label}
@@ -1345,8 +1332,8 @@ export default function ResumeOpeningPage() {
                   </div>
                 </div>
 
-                {/* AI stream / terminal */}
-                <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-[#060609]">
+                {/* ✅ On mobile/short-height: stream hides automatically to prevent cut */}
+                <div className="mt-4 hidden sm:block streamFit overflow-hidden rounded-2xl border border-white/10 bg-[#060609]">
                   <div className="flex items-center justify-between gap-3 border-b border-white/10 bg-white/[0.04] px-4 py-3">
                     <p className="text-xs font-semibold text-white/80">
                       AI Verification Stream
@@ -1390,12 +1377,12 @@ export default function ResumeOpeningPage() {
                 </div>
 
                 {/* Tip */}
-                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/80">
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-white/80 tipFit">
                   ✅ Tip: If resume doesn’t open, allow popups/downloads for
                   this site.
                 </div>
 
-                <p className="mt-3 text-[11px] text-white/45">
+                <p className="mt-2 text-[11px] text-white/45">
                   This tab is locked for security and will automatically
                   continue to your resume.
                 </p>
@@ -1405,6 +1392,32 @@ export default function ResumeOpeningPage() {
         </div>
 
         <style jsx global>{`
+          /* ✅ Hard fix for laptop bottom cut: scale down content on short screens */
+          @media (max-height: 760px) {
+            .cardFit {
+              padding: 18px !important;
+            }
+            .coreFit {
+              height: 168px !important;
+              width: 168px !important;
+            }
+            .streamFit {
+              display: none !important; /* remove heavy block */
+            }
+            .tipFit {
+              margin-top: 12px !important;
+              padding: 10px !important;
+              font-size: 13px !important;
+            }
+          }
+
+          @media (max-height: 680px) {
+            .cardFit {
+              transform: scale(0.95);
+              transform-origin: center;
+            }
+          }
+
           @keyframes spinGlow {
             from {
               transform: rotate(0deg);
@@ -1414,7 +1427,6 @@ export default function ResumeOpeningPage() {
             }
           }
 
-          /* background layers */
           .aurora {
             background: radial-gradient(
                 circle at 30% 40%,
@@ -1474,7 +1486,6 @@ export default function ResumeOpeningPage() {
             }
           }
 
-          /* AI core glow */
           .aiGlow {
             background: radial-gradient(
               circle at 35% 30%,
@@ -1532,7 +1543,6 @@ export default function ResumeOpeningPage() {
             opacity: 0.75;
           }
 
-          /* scanning arc */
           .scanArc {
             background: conic-gradient(
               from 0deg,
@@ -1557,7 +1567,6 @@ export default function ResumeOpeningPage() {
             }
           }
 
-          /* micro dots */
           .dot {
             width: 6px;
             height: 6px;
@@ -1593,7 +1602,6 @@ export default function ResumeOpeningPage() {
             }
           }
 
-          /* shimmer + progress */
           .shimmer {
             width: 100%;
             height: 100%;
@@ -1633,7 +1641,6 @@ export default function ResumeOpeningPage() {
             box-shadow: 0 12px 30px rgba(233, 200, 106, 0.12);
           }
 
-          /* sparkles */
           .sparkle {
             position: absolute;
             width: 10px;
@@ -1732,22 +1739,7 @@ export default function ResumeOpeningPage() {
             width: 7px;
             height: 7px;
           }
-          .p11 {
-            left: 34%;
-            top: 52%;
-            animation-delay: 2s;
-            width: 9px;
-            height: 9px;
-          }
-          .p12 {
-            left: 58%;
-            top: 18%;
-            animation-delay: 2.4s;
-            width: 6px;
-            height: 6px;
-          }
 
-          /* cursor blink */
           .cursorBlink {
             color: rgba(255, 255, 255, 0.55);
             animation: cursorBlink 0.9s steps(2, start) infinite;
