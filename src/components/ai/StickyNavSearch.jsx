@@ -477,7 +477,7 @@ export default function StickyNavSearch() {
                       setNoHitMsg("");
                     }}
                     placeholder="Search: blog, docker, skills, contact…"
-                    className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 pr-11 text-sm text-white outline-none placeholder:text-white/35 focus:bg-white/[0.07]"
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-3 pr-11 text-[16px] sm:text-sm text-white outline-none placeholder:text-white/35 focus:bg-white/[0.07]"
                   />
 
                   {q?.length ? (
