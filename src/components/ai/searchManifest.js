@@ -75,6 +75,7 @@ export const SEARCH_MANIFEST = {
         "Scalability",
         "JavaScript",
         "TypeScript",
+        "Css",
     ],
 
     /* ---------------------------------------------
@@ -94,7 +95,7 @@ export const SEARCH_MANIFEST = {
             // ✅ Agar Furniture ka single page hai to "/projects/furniture" rakho
             href: "/projects/furniture",
             hint: "Project",
-            tags: ["tailwind", "next.js", "react", "javascript"],
+            tags: ["tailwind", "next.js", "react", "javascript","css"],
             keywords: ["ecommerce", "ui", "catalog"],
         },
         {
@@ -102,7 +103,7 @@ export const SEARCH_MANIFEST = {
             label: "Portfolio V2",
             href: "/projects/portfolio-v2",
             hint: "Project",
-            tags: ["next.js", "tailwind"],
+            tags: ["next.js", "tailwind","css"],
             keywords: ["portfolio", "personal site"],
         },
     ],
