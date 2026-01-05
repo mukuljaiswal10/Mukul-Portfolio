@@ -17,7 +17,7 @@ export default function ProjectsPage() {
           </Reveal>
         </Parallax>
       </Container>
-      <ProjectsSection enableFilters enableSearch syncToUrl enableSlashFocus />
+      <ProjectsSection enableFilters enableSearch  enableSlashFocus />
     </>
   );
 }

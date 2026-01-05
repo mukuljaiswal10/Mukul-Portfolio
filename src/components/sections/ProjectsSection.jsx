@@ -405,7 +405,7 @@ function fuzzyTokenMatch(token, candidate) {
  * Only treat it as tag-search if it exists in known tags list.
  */
 function queryAsKnownTag(q, knownTagSet) {
-  const guess = normalizeTags([q])[0]; // might return "Admin Panel" too
+  const guess = normalizeTags([q])[0];
   if (!guess) return null;
   return knownTagSet.has(guess) ? guess : null;
 }
@@ -463,9 +463,22 @@ export default function ProjectsSection({
   }, [sectionId]);
 
   // ✅ all chips (from ALL projects)
+  // const allTags = useMemo(() => {
+  //   const set = new Set();
+  //   projects.forEach((p) => (p.tags || []).forEach((t) => set.add(t)));
+  //   return ["All", ...Array.from(set)];
+  // }, []);
+
+  // ✅ extra chips (always show)
+  const EXTRA_CHIPS = ["MERN", "Node.js", "Express.js", "MongoDB"];
+
   const allTags = useMemo(() => {
     const set = new Set();
     projects.forEach((p) => (p.tags || []).forEach((t) => set.add(t)));
+
+    // ✅ add extra chips also
+    EXTRA_CHIPS.forEach((t) => set.add(t));
+
     return ["All", ...Array.from(set)];
   }, []);
 
@@ -488,6 +501,8 @@ export default function ProjectsSection({
         .map((x) => x.trim())
         .filter(Boolean);
     }
+    const [activeTags, setActiveTags] = useState([]); // ✅ always All on refresh
+
     const single = searchParams.get("tag");
     return single && single !== "All" ? [single] : [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -550,12 +565,21 @@ export default function ProjectsSection({
         })();
 
     setQuery((prev) => (prev !== q ? q : prev));
-    setActiveTags((prev) => {
-      const same =
-        prev.length === nextTags.length &&
-        prev.every((t) => nextTags.includes(t));
-      return same ? prev : nextTags;
+    // setActiveTags((prev) => {
+    //   const same =
+    //     prev.length === nextTags.length &&
+    //     prev.every((t) => nextTags.includes(t));
+    //   return same ? prev : nextTags;
+    // });
+
+    setActiveTags(() => {
+      // ✅ refresh/open without search => always All
+      if (!q.trim()) return [];
+
+      // ✅ only when search exists, allow URL tags
+      return nextTags;
     });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, syncToUrl, isHome]);
 
@@ -598,43 +622,14 @@ export default function ProjectsSection({
     router,
   ]);
 
-  // ✅ chip scroll: drag + wheel
-  // const chipDrag = useRef(null);
-  // function onChipPointerDown(e) {
-  //   const el = e.currentTarget;
-  //   chipDrag.current = {
-  //     id: e.pointerId,
-  //     startX: e.clientX,
-  //     startScroll: el.scrollLeft,
-  //   };
-  //   try {
-  //     el.setPointerCapture(e.pointerId);
-  //   } catch {}
-  // }
-  // function onChipPointerMove(e) {
-  //   if (!chipDrag.current || chipDrag.current.id !== e.pointerId) return;
-  //   const el = e.currentTarget;
-  //   const dx = e.clientX - chipDrag.current.startX;
-  //   el.scrollLeft = chipDrag.current.startScroll - dx;
-  // }
-  // function onChipPointerUp(e) {
-  //   if (!chipDrag.current || chipDrag.current.id !== e.pointerId) return;
-  //   chipDrag.current = null;
-  // }
-  // function onChipWheel(e) {
-  //   // vertical wheel => horizontal scroll for chips
-  //   if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-  //     e.currentTarget.scrollLeft += e.deltaY;
-  //   }
-  // }
-
-  // ✅ chip scroll: drag + wheel (FIXED: click works + drag works)
+  /* ✅ CHIP DRAG SCROLL (FIXED: click works + drag works) */
   const chipDragRef = useRef({
     active: false,
     pointerId: null,
     startX: 0,
     startScroll: 0,
     moved: false,
+    captured: false,
   });
 
   const ignoreChipClickRef = useRef(false);
@@ -645,17 +640,17 @@ export default function ProjectsSection({
     // only left click for mouse
     if (e.pointerType === "mouse" && e.button !== 0) return;
 
+    // reset ignore on fresh down
+    ignoreChipClickRef.current = false;
+
     chipDragRef.current = {
       active: true,
       pointerId: e.pointerId,
       startX: e.clientX,
       startScroll: el.scrollLeft,
       moved: false,
+      captured: false,
     };
-
-    try {
-      el.setPointerCapture(e.pointerId);
-    } catch {}
   }
 
   function onChipPointerMove(e) {
@@ -668,10 +663,20 @@ export default function ProjectsSection({
     // threshold (tap vs drag)
     if (!s.moved && Math.abs(dx) > 6) {
       s.moved = true;
-      ignoreChipClickRef.current = true; // drag हुआ => click ignore
+      ignoreChipClickRef.current = true;
+
+      // IMPORTANT: capture ONLY after drag begins (so normal click is not broken)
+      if (!s.captured) {
+        try {
+          el.setPointerCapture(e.pointerId);
+          s.captured = true;
+        } catch {}
+      }
     }
 
     if (s.moved) {
+      // prevent page scroll while dragging chips (mobile)
+      e.preventDefault?.();
       el.scrollLeft = s.startScroll - dx;
     }
   }
@@ -680,15 +685,23 @@ export default function ProjectsSection({
     const s = chipDragRef.current;
     if (!s.active || s.pointerId !== e.pointerId) return;
 
+    const el = e.currentTarget;
+    if (s.captured) {
+      try {
+        el.releasePointerCapture(e.pointerId);
+      } catch {}
+    }
+
     chipDragRef.current = {
       active: false,
       pointerId: null,
       startX: 0,
       startScroll: 0,
       moved: false,
+      captured: false,
     };
 
-    // next tick में clicks re-enable
+    // next tick: allow clicks again
     setTimeout(() => {
       ignoreChipClickRef.current = false;
     }, 0);
@@ -700,19 +713,6 @@ export default function ProjectsSection({
       e.currentTarget.scrollLeft += e.deltaY;
     }
   }
-
-  // ✅ toggle multi-tags
-  // function toggleTag(t) {
-  //   if (t === "All") {
-  //     setActiveTags([]);
-  //     return;
-  //   }
-  //   setActiveTags((prev) => {
-  //     const has = prev.includes(t);
-  //     if (has) return prev.filter((x) => x !== t);
-  //     return [...prev, t];
-  //   });
-  // }
 
   function toggleTag(t) {
     // ✅ अगर drag हुआ है तो chip click ignore
@@ -746,19 +746,21 @@ export default function ProjectsSection({
       const raw = query.trim();
       if (!raw) return out;
 
-      // avoid weird matches for 1-letter searches like "x" matching "Next.js"
-      // BUT allow if it's a known tag (like "UI")
       const tagHit = queryAsKnownTag(raw, knownTagSet);
-      if (!tagHit && raw.length < 2) return out;
 
-      // ✅ if query looks like a known tech tag, do TAG-ONLY match (prevents CSS matching Tailwind CSS)
+      // ✅ अगर random 1-letter/unknown input है तो ZERO results (as you asked)
+      if (!tagHit && raw.length < 2) return [];
+
+      // ✅ if query is a known tag => TAG-ONLY match (prevents CSS matching Tailwind CSS)
       if (tagHit) {
         return out.filter((p) => (p.tags || []).includes(tagHit));
       }
 
       const qNorm = normText(raw);
       const tokens = qNorm.split(" ").filter((t) => t.length >= 2);
-      if (tokens.length === 0) return out;
+
+      // ✅ no valid tokens => ZERO results (not all projects)
+      if (tokens.length === 0) return [];
 
       return out.filter((p) => {
         const title = normText(p.title || "");
@@ -769,10 +771,8 @@ export default function ProjectsSection({
 
         // AND across tokens (more accurate)
         return tokens.every((tok) => {
-          // title/desc contains token
           if (hay.includes(tok)) return true;
 
-          // fuzzy tag match (typos + tailwindcss / nextjs)
           for (const k of pTagKeys) {
             if (fuzzyTokenMatch(tok, k)) return true;
           }
@@ -822,11 +822,24 @@ export default function ProjectsSection({
                 onPointerUp={onChipPointerUp}
                 onPointerCancel={onChipPointerUp}
                 onWheel={onChipWheel}
+                // ✅ if drag happened, kill click at container level too
+                onClickCapture={(e) => {
+                  if (ignoreChipClickRef.current) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
               >
                 {allTags.map((t) => {
+                  // const active =
+                  //   t === "All"
+                  //     ? activeTags.length === 0
+                  //     : activeTags.includes(t);
+                  const isSearching = enableSearch && query.trim().length > 0;
+
                   const active =
                     t === "All"
-                      ? activeTags.length === 0
+                      ? !isSearching && activeTags.length === 0 // ✅ search me All bhi inactive
                       : activeTags.includes(t);
                   return (
                     <FilterChip
@@ -866,10 +879,25 @@ export default function ProjectsSection({
         ) : null}
 
         {enableSearch ? (
+          // <SearchBar
+          //   value={query}
+          //   onChange={setQuery}
+          //   onClear={() => setQuery("")}
+          //   inputRef={searchRef}
+          // />
           <SearchBar
             value={query}
-            onChange={setQuery}
-            onClear={() => setQuery("")}
+            onChange={(val) => {
+              setQuery(val);
+
+              // ✅ typing starts => reset chips to All
+              if (val.trim()) setActiveTags([]);
+            }}
+            onClear={() => {
+              setQuery("");
+              // optional: clear chips too (All)
+              // setActiveTags([]);
+            }}
             inputRef={searchRef}
           />
         ) : null}
