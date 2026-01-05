@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url = env("DATABASE_URL")
+}
+
+model FeedbackEvent {
+  id        String   @id @default(cuid())
+
+  // kis page par feedback aaya
+  scope     String   // "project" | "blog"
+  slug      String   // project slug ya blog slug
+
+  // user identify (login nahi hai to cookie id)
+  visitorId String
+
+  // user ne kya kiya
+  action    String   // "like" | "unlike" | "rating_set" | "rating_clear" | "feedback_set" | "feedback_clear" | "reset_all"
+
+  // optional fields
+  rating    Int?
+  name      String?
+  email     String?
+  message   String?
+
+  // meta (future use)
+  userAgent String?
+  ip        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([scope, slug])
+  @@index([visitorId, scope, slug])
+}
+
+model FeedbackState {
+  id        String   @id @default(cuid())
+
+  scope     String
+  slug      String
+  visitorId String
+
+  liked     Boolean  @default(false)
+  rating    Int?
+  name      String?
+  email     String?
+  message   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([visitorId, scope, slug])
+  @@index([scope, slug])
+}
