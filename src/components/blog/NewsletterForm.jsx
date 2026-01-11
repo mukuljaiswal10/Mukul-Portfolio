@@ -80,7 +80,7 @@ export default function NewsletterForm() {
 
   return (
     <div className="relative overflow-hidden rounded-3xl border border-border/12 bg-foreground/[0.02] p-6 sm:p-8">
-      {/* soft premium glow */}
+     
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-[#E7C266]/10 blur-3xl" />
         <div className="absolute -bottom-28 -left-28 h-64 w-64 rounded-full bg-white/5 blur-3xl" />
@@ -123,7 +123,7 @@ export default function NewsletterForm() {
                 autoComplete="email"
               />
 
-              {/* subtle underline glow */}
+             
               <div className="pointer-events-none absolute inset-x-4 -bottom-1 h-px bg-transparent group-focus-within:bg-[#E7C266]/30 transition" />
             </div>
 

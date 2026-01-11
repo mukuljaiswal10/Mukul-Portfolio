@@ -22,7 +22,6 @@ export default function RootLayout({ children }) {
         <Navbar />
         <main className="pt-16 prose-premium">{children}</main>
         <Footer />
-        {/* ✅ extras */}
         <StickyCTA
           whatsappNumber="919919371299"
           email="mukuljaiswal282@gmail.com"
