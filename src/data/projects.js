@@ -169,7 +169,7 @@ const rawProjects = [
         description:
             "Modern responsive front-end clone built using Bootstrap with clean UI and mobile-friendly experience.",
 
-        tags: ["Bootstrap", "CSS","Javascript"],
+        tags: ["Bootstrap", "CSS", "Javascript"],
 
         image: "/images/p5.png",
         liveUrl: "https://solachey-website-using-bootstrap.vercel.app/",

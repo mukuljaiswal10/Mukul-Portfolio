@@ -55,7 +55,7 @@ function readTimeFromContent(html = "") {
 const POSTS = [
     {
         title: "Production-Ready MERN Architecture: Folder Structure, Patterns & Scaling",
-        slug: "production-ready-mern-architecture",
+        slug: "mern-stack-architecture-production-ready",
         category: "MERN",
         tags: ["MERN", "Architecture", "Scalability", "Clean Code"],
         date: "2025-01-10",
@@ -157,7 +157,7 @@ const POSTS = [
 
     {
         title: "Deploy MERN with Docker + Nginx: A Clean Production Setup",
-        slug: "deploy-mern-with-docker-nginx",
+        slug: "deploy-mern-docker-nginx",
         category: "MERN",
         tags: ["Docker", "Nginx", "Deployment", "MERN"],
         date: "2025-03-08",
@@ -187,7 +187,7 @@ const POSTS = [
 
     {
         title: "Custom Post Type (CPT) Setup Like a Pro: WordPress + ACF Best Workflow",
-        slug: "custom-post-type-cpt-setup-like-a-pro",
+        slug: "cpt-acf-workflow-wordpress",
         category: "WordPress",
         tags: ["WordPress", "CPT", "ACF"],
         date: "2025-03-01",

@@ -4,10 +4,8 @@ import Footer from "@/components/layout/Footer";
 import StickyCTA from "@/components/ui/StickyCTA";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import SplashLoader from "@/components/ui/SplashLoader";
-import CommandPalette from "@/components/ai/CommandPalette";
 import ScrollToHash from "@/components/ai/ScrollToHash";
 import AISuggestions from "@/components/ai/AISuggestion";
-import StickyNavSearchShell from "@/components/ai/StickyNavSearchShell";
 
 export const metadata = {
   title: "Mukul Jaiswal | Portfolio",
@@ -20,10 +18,8 @@ export default function RootLayout({ children }) {
 
       <body className="min-h-screen bg-black antialiased">
         <ScrollToHash />
-        <CommandPalette />
         <SplashLoader />
         <Navbar />
-        <StickyNavSearchShell />
         <main className="pt-16 prose-premium">{children}</main>
         <Footer />
         {/* ✅ extras */}

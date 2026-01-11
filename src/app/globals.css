@@ -1053,3 +1053,122 @@ body::-webkit-scrollbar-thumb:hover {
     opacity: 0.65;
   }
 }
+
+@keyframes shine {
+  0% {
+    transform: translateX(0) rotate(12deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420px) rotate(12deg);
+    opacity: 0;
+  }
+}
+
+/* ---- Like button premium effects (Mukul.dev) ---- */
+
+.mj-shine {
+  animation: mj_shine 1.2s ease-in-out infinite;
+}
+
+@keyframes mj_shine {
+  0% {
+    transform: translateX(0) rotate(12deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420px) rotate(12deg);
+    opacity: 0;
+  }
+}
+
+/* Tooltip */
+.mj-like .mj-tip {
+  position: absolute;
+  top: -44px;
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 20;
+
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(231, 194, 102, 0.25);
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.mj-like:hover .mj-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0px);
+}
+
+/* Confetti burst */
+.mj-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.mj-confetti__p {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+
+  background: rgba(231, 194, 102, 0.95);
+  box-shadow: 0 0 10px rgba(231, 194, 102, 0.25);
+
+  transform: translate(-50%, -50%);
+  animation: mj_confetti var(--d) ease-out forwards;
+}
+
+@keyframes mj_confetti {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      scale(0.9) rotate(var(--rot));
+  }
+}
+
+@keyframes mj_shine {
+  0% {
+    transform: translateX(0) rotate(12deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(420px) rotate(12deg);
+    opacity: 0;
+  }
+}

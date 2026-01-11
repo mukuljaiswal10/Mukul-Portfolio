@@ -1,7 +1,7 @@
 // src/data/blogPosts.js
 export const blogPosts = [
     {
-        slug: "production-ready-mern-architecture",
+        slug: "mern-stack-architecture-production-ready",
         title: "Production-Ready MERN Architecture: Folder Structure, Patterns & Scaling",
         excerpt:
             "A practical blueprint to structure a MERN codebase like a professional—clean layers, reusable modules, and scalability patterns.",
@@ -10,6 +10,13 @@ export const blogPosts = [
         date: "2025-01-10",
         readMins: 10,
         featured: true,
+        updated: "2026-01-11",
+        author: {
+            name: "Mukul Jaiswal",
+            role: "Full-Stack & Wordpress Developer",
+            image:"/profile/mukul.jpg"
+        },
+        coverImage: "/blog/production-ready.jpg",
         cover: { tone: "gold" },
         content: [
             { type: "p", text: "A scalable MERN app is not “just folders”—it’s boundaries, ownership, and consistent patterns." },
@@ -67,6 +74,13 @@ export const blogPosts = [
         date: "2025-03-15",
         readMins: 6,
         featured: false,
+        updated: "2026-01-11",
+        author: {
+            name: "Mukul Jaiswal",
+            role: "Full-Stack & Wordpress Developer",
+            image:"/profile/mukul.jpg"
+        },
+        coverImage: "/blog/wp-security.jpg",
         cover: { tone: "blue" },
         content: [
             { type: "p", text: "Security doesn’t need panic. It needs a repeatable process." },
@@ -90,6 +104,13 @@ export const blogPosts = [
         date: "2025-03-08",
         readMins: 11,
         featured: false,
+        updated: "2026-01-11",
+        author: {
+            name: "Mukul Jaiswal",
+            role: "Full-Stack & Wordpress Developer",
+            image:"/profile/mukul.jpg"
+        },
+        coverImage: "/blog/deploy-mern.jpg",
         cover: { tone: "green" },
         content: [
             { type: "p", text: "Docker gives repeatability. Nginx gives control. Together: production confidence." },
@@ -121,6 +142,13 @@ export const blogPosts = [
         date: "2025-03-01",
         readMins: 7,
         featured: false,
+        updated: "2026-01-11",
+        author: {
+            name: "Mukul Jaiswal",
+            role: "Full-Stack & Wordpress Developer",
+            image:"/profile/mukul.jpg"
+        },
+        coverImage: "/blog/cpt-acf.jpg",
         cover: { tone: "purple" },
         content: [
             { type: "p", text: "CPT + ACF is the fastest way to build structured content sites without chaos." },
@@ -131,43 +159,30 @@ export const blogPosts = [
         ],
     },
 
-    {
-        slug: "nextjs-performance-checklist",
-        title: "Next.js Performance Checklist: Ship Fast Pages Without Overthinking",
-        excerpt:
-            "Practical performance wins: images, caching, routing, hydration, and bundle hygiene—quick wins + long-term habits.",
-        category: "Next.js",
-        tags: ["Performance", "Caching", "Bundle"],
-        date: "2025-02-12",
-        readMins: 8,
-        featured: false,
-        cover: { tone: "gold" },
-        content: [
-            { type: "p", text: "Performance is a product feature. These are the checks I do before shipping." },
-            { type: "ul", items: ["Optimize images", "Avoid unnecessary client components", "Memoize expensive UI", "Use route-level caching wisely"] },
-            { type: "h2", id: "hydration", text: "Hydration pitfalls" },
-            { type: "p", text: "Avoid Date.now()/Math.random() in SSR output, and keep DOM consistent across server/client." },
-        ],
-    },
-
-    {
-        slug: "jwt-auth-mern-best-practices",
-        title: "JWT Auth in MERN: Best Practices (Access/Refresh) Without Security Drama",
-        excerpt:
-            "A clean authentication flow with refresh tokens, HttpOnly cookies, and rotation strategy—simple, secure, scalable.",
-        category: "MERN",
-        tags: ["JWT", "Auth", "Security"],
-        date: "2025-02-02",
-        readMins: 9,
-        featured: false,
-        cover: { tone: "blue" },
-        content: [
-            { type: "p", text: "JWT is safe when you manage storage, rotation, and invalidation correctly." },
-            { type: "h2", id: "flow", text: "Recommended flow" },
-            { type: "ul", items: ["Access token short-lived", "Refresh token in HttpOnly cookie", "Rotate refresh token on use"] },
-            { type: "callout", tone: "gold", title: "Important", text: "Never store refresh tokens in localStorage." },
-        ],
-    },
+    // {
+    //     slug: "nextjs-portfolio-performance-checklist",
+    //     title: "Next.js Performance Checklist: Ship Fast Pages Without Overthinking",
+    //     excerpt:
+    //         "Practical performance wins: images, caching, routing, hydration, and bundle hygiene—quick wins + long-term habits.",
+    //     category: "Next.js",
+    //     tags: ["Performance", "Caching", "Bundle"],
+    //     date: "2025-02-12",
+    //     readMins: 8,
+    //     featured: false,
+    //     updated: "2026-01-11",
+    //     author: {
+    //         name: "Mukul Jaiswal",
+    //         role: "Full-Stack & Wordpress Developer",
+    //     },
+    //     coverImage: "/blog/nextjs.jpg",
+    //     cover: { tone: "gold" },
+    //     content: [
+    //         { type: "p", text: "Performance is a product feature. These are the checks I do before shipping." },
+    //         { type: "ul", items: ["Optimize images", "Avoid unnecessary client components", "Memoize expensive UI", "Use route-level caching wisely"] },
+    //         { type: "h2", id: "hydration", text: "Hydration pitfalls" },
+    //         { type: "p", text: "Avoid Date.now()/Math.random() in SSR output, and keep DOM consistent across server/client." },
+    //     ],
+    // },
 ];
 
 

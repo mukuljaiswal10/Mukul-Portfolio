@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/shared/SectionHeading";
@@ -15,7 +14,10 @@ import Parallax from "@/components/ui/Parallax";
 import TiltCard from "@/components/ui/TiltCard";
 import { blurDataURL } from "@/lib/blur";
 import LuxuryButton from "../ui/LuxuryButton";
-import { normalizeTags } from "@/lib/tags"; // ✅ NEW (tag-aware search)
+
+// ✅ NEW
+import ProjectsSearchPro from "@/components/projects/ProjectsSearchPro";
+import { searchProjects } from "@/lib/projectSearch";
 
 /* ---------------- helpers ---------------- */
 
@@ -28,13 +30,6 @@ function slugKey(s) {
     .replace(/[^a-z0-9-]/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-}
-
-/** ✅ Same pattern like ContactSection (CustomEvent for scroll) */
-const SCROLL_EVENT = "mukul:scrollTo";
-export function broadcastScrollTo(id) {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent(SCROLL_EVENT, { detail: { id } }));
 }
 
 /** ✅ WIP detector (data-driven) */
@@ -250,186 +245,31 @@ function ProjectCard({ p, i }) {
   );
 }
 
-function FilterChip({ active, onClick, children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={[
-        "relative shrink-0 rounded-full px-4 py-2 text-sm transition",
-        "border border-border/15 backdrop-blur",
-        active ? "text-foreground" : "text-foreground/75 hover:text-foreground",
-      ].join(" ")}
-      type="button"
-    >
-      <span
-        className={[
-          "absolute inset-0 rounded-full",
-          active ? "bg-foreground/[0.09]" : "bg-foreground/[0.03]",
-        ].join(" ")}
-      />
-      {active ? (
-        <span className="pointer-events-none absolute -inset-[1px] rounded-full bg-gradient-to-r from-foreground/35 via-foreground/10 to-foreground/35 opacity-70 blur-[6px]" />
-      ) : null}
-
-      <span className="relative inline-flex items-center gap-2">
-        <span
-          className={
-            active
-              ? "h-1.5 w-1.5 rounded-full bg-foreground/80"
-              : "h-1.5 w-1.5 rounded-full bg-foreground/45"
-          }
-        />
-        {children}
-      </span>
-
-      {active ? (
-        <motion.span
-          layoutId="chip-underline"
-          className="pointer-events-none absolute left-4 right-4 -bottom-[6px] h-[2px] rounded-full bg-foreground/80"
-          transition={{ type: "spring", stiffness: 420, damping: 34 }}
-        />
-      ) : null}
-    </button>
-  );
-}
-
-function SearchBar({ value, onChange, onClear, inputRef }) {
-  return (
-    <div className="mt-4">
-      <div className="relative">
-        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-foreground/60">
-          🔎
-        </span>
-
-        <input
-          ref={inputRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Search projects… (Press /)"
-          className={[
-            "w-full rounded-2xl pl-11 pr-16 py-3 text-sm outline-none transition",
-            "border border-border/12 bg-foreground/[0.03] text-foreground",
-            "placeholder:text-foreground/45",
-            "focus:border-border/25 focus:bg-foreground/[0.05]",
-          ].join(" ")}
-        />
-
-        {value ? (
-          <button
-            onClick={onClear}
-            aria-label="Clear search"
-            className="absolute right-12 top-1/2 -translate-y-1/2 rounded-xl border border-border/12 bg-foreground/[0.03] px-2 py-1 text-xs text-foreground/70 hover:bg-foreground/[0.06]"
-            type="button"
-          >
-            ✕
-          </button>
-        ) : null}
-
-        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-border/12 bg-foreground/[0.03] px-2 py-1 text-[11px] text-foreground/55">
-          /
-        </span>
-
-        <span className="pointer-events-none absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-transparent via-foreground/10 to-transparent opacity-60 blur-xl" />
-      </div>
-
-      <p className="mt-2 text-xs text-muted/60">
-        Tip: Try <span className="text-foreground/80">Next.js</span>,{" "}
-        <span className="text-foreground/80">UI</span>,{" "}
-        <span className="text-foreground/80">Bootstrap</span>
-      </p>
-    </div>
-  );
-}
-
-/* --------- Search helpers (NEW) --------- */
-
-function normText(s) {
-  return String(s || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function tagKey(s) {
-  return String(s || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function levenshtein(a, b) {
-  if (a === b) return 0;
-  if (!a) return b.length;
-  if (!b) return a.length;
-
-  const m = a.length;
-  const n = b.length;
-
-  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + cost
-      );
-    }
-  }
-  return dp[m][n];
-}
-
-function fuzzyTokenMatch(token, candidate) {
-  if (!token || !candidate) return false;
-  if (token === candidate) return true;
-
-  // prefix match (good for "tailwind" -> "tailwind css")
-  if (
-    token.length >= 3 &&
-    (candidate.startsWith(token) || token.startsWith(candidate))
-  ) {
-    return true;
-  }
-
-  const max = token.length <= 4 ? 1 : 2; // small typos allowed
-  return levenshtein(token, candidate) <= max;
-}
-
-/**
- * ✅ Try interpret whole query as a canonical tag (CSS, Tailwind CSS, Next.js etc)
- * Only treat it as tag-search if it exists in known tags list.
- */
-function queryAsKnownTag(q, knownTagSet) {
-  const guess = normalizeTags([q])[0];
-  if (!guess) return null;
-  return knownTagSet.has(guess) ? guess : null;
-}
-
 export default function ProjectsSection({
   limit,
   showViewAll = false,
   enableFilters = false,
   enableSearch = false,
   syncToUrl = false,
-  enableSlashFocus = false,
+  enableSlashFocus = false, // (ProjectsSearchPro already has keyboard logic if needed later)
   sectionId = "projects",
 }) {
   const isHome = typeof limit === "number";
   const baseList = isHome ? projects.slice(0, limit) : projects;
 
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  /** ✅ section ref for scroll */
   const sectionRef = useRef(null);
 
-  /** ✅ 1) hash based auto-scroll ( /#projects ) */
+  const searchProRef = useRef(null);
+
+  // ✅ NEW: results list controlled by ProjectsSearchPro
+  const [list, setList] = useState(baseList);
+
+  // ✅ ensure list resets if baseList changes (home limit / data update)
+  useEffect(() => {
+    setList(baseList);
+  }, [baseList]);
+
+  // ✅ hash scroll (keep)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash?.replace("#", "");
@@ -444,346 +284,6 @@ export default function ProjectsSection({
 
     return () => clearTimeout(t);
   }, [sectionId]);
-
-  /** ✅ 2) custom event scroll (command palette / AI suggestions) */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const onScrollTo = (e) => {
-      const id = e?.detail?.id;
-      if (!id || id !== sectionId) return;
-      sectionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    };
-
-    window.addEventListener(SCROLL_EVENT, onScrollTo);
-    return () => window.removeEventListener(SCROLL_EVENT, onScrollTo);
-  }, [sectionId]);
-
-  // ✅ all chips (from ALL projects)
-  // const allTags = useMemo(() => {
-  //   const set = new Set();
-  //   projects.forEach((p) => (p.tags || []).forEach((t) => set.add(t)));
-  //   return ["All", ...Array.from(set)];
-  // }, []);
-
-  // ✅ extra chips (always show)
-  const EXTRA_CHIPS = ["MERN", "Node.js", "Express.js", "MongoDB"];
-
-  const allTags = useMemo(() => {
-    const set = new Set();
-    projects.forEach((p) => (p.tags || []).forEach((t) => set.add(t)));
-
-    // ✅ add extra chips also
-    EXTRA_CHIPS.forEach((t) => set.add(t));
-
-    return ["All", ...Array.from(set)];
-  }, []);
-
-  // ✅ known tags set for tag-aware search
-  const knownTagSet = useMemo(() => {
-    const s = new Set();
-    allTags.forEach((t) => {
-      if (t && t !== "All") s.add(t);
-    });
-    return s;
-  }, [allTags]);
-
-  // ✅ URL initial state (supports tags=HTML,CSS OR legacy tag=CSS)
-  const initialTags = useMemo(() => {
-    if (!syncToUrl || isHome) return [];
-    const multi = searchParams.get("tags");
-    if (multi) {
-      return multi
-        .split(",")
-        .map((x) => x.trim())
-        .filter(Boolean);
-    }
-    const [activeTags, setActiveTags] = useState([]); // ✅ always All on refresh
-
-    const single = searchParams.get("tag");
-    return single && single !== "All" ? [single] : [];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncToUrl, isHome]);
-
-  const initialQ = syncToUrl && !isHome ? searchParams.get("q") || "" : "";
-
-  // ✅ MULTI chips (empty = All)
-  const [activeTags, setActiveTags] = useState(initialTags);
-  const [query, setQuery] = useState(initialQ);
-
-  const searchRef = useRef(null);
-
-  // ✅ allow "/" focus
-  useEffect(() => {
-    if (!enableSlashFocus || !enableSearch || isHome) return;
-
-    const onKeyDown = (e) => {
-      if (e.key !== "/") return;
-
-      const el = e.target;
-      const tag = el?.tagName?.toLowerCase();
-      const isTyping =
-        tag === "input" || tag === "textarea" || el?.isContentEditable;
-
-      if (isTyping) return;
-
-      e.preventDefault();
-      searchRef.current?.focus?.();
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [enableSlashFocus, enableSearch, isHome]);
-
-  // ✅ when typing in search, reset chips to All (as you asked)
-  useEffect(() => {
-    if (!enableSearch || isHome) return;
-    if (query.trim()) {
-      setActiveTags([]); // All
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
-
-  // ✅ sync from URL
-  useEffect(() => {
-    if (!syncToUrl || isHome) return;
-
-    const q = searchParams.get("q") || "";
-
-    const multi = searchParams.get("tags");
-    const nextTags = multi
-      ? multi
-          .split(",")
-          .map((x) => x.trim())
-          .filter(Boolean)
-      : (() => {
-          const single = searchParams.get("tag");
-          return single && single !== "All" ? [single] : [];
-        })();
-
-    setQuery((prev) => (prev !== q ? q : prev));
-    // setActiveTags((prev) => {
-    //   const same =
-    //     prev.length === nextTags.length &&
-    //     prev.every((t) => nextTags.includes(t));
-    //   return same ? prev : nextTags;
-    // });
-
-    setActiveTags(() => {
-      // ✅ refresh/open without search => always All
-      if (!q.trim()) return [];
-
-      // ✅ only when search exists, allow URL tags
-      return nextTags;
-    });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, syncToUrl, isHome]);
-
-  // ✅ sync to URL
-  const lastUrlRef = useRef("");
-  useEffect(() => {
-    if (!syncToUrl || isHome) return;
-
-    const sp = new URLSearchParams(searchParams.toString());
-
-    // tags
-    if (enableFilters && activeTags.length > 0)
-      sp.set("tags", activeTags.join(","));
-    else sp.delete("tags");
-
-    // legacy cleanup
-    sp.delete("tag");
-
-    // query
-    const q = enableSearch ? query.trim() : "";
-    if (q) sp.set("q", q);
-    else sp.delete("q");
-
-    const qs = sp.toString();
-    const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
-
-    if (lastUrlRef.current === nextUrl) return;
-    lastUrlRef.current = nextUrl;
-
-    router.replace(nextUrl, { scroll: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    syncToUrl,
-    isHome,
-    enableFilters,
-    enableSearch,
-    activeTags,
-    query,
-    pathname,
-    router,
-  ]);
-
-  /* ✅ CHIP DRAG SCROLL (FIXED: click works + drag works) */
-  const chipDragRef = useRef({
-    active: false,
-    pointerId: null,
-    startX: 0,
-    startScroll: 0,
-    moved: false,
-    captured: false,
-  });
-
-  const ignoreChipClickRef = useRef(false);
-
-  function onChipPointerDown(e) {
-    const el = e.currentTarget;
-
-    // only left click for mouse
-    if (e.pointerType === "mouse" && e.button !== 0) return;
-
-    // reset ignore on fresh down
-    ignoreChipClickRef.current = false;
-
-    chipDragRef.current = {
-      active: true,
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startScroll: el.scrollLeft,
-      moved: false,
-      captured: false,
-    };
-  }
-
-  function onChipPointerMove(e) {
-    const s = chipDragRef.current;
-    if (!s.active || s.pointerId !== e.pointerId) return;
-
-    const el = e.currentTarget;
-    const dx = e.clientX - s.startX;
-
-    // threshold (tap vs drag)
-    if (!s.moved && Math.abs(dx) > 6) {
-      s.moved = true;
-      ignoreChipClickRef.current = true;
-
-      // IMPORTANT: capture ONLY after drag begins (so normal click is not broken)
-      if (!s.captured) {
-        try {
-          el.setPointerCapture(e.pointerId);
-          s.captured = true;
-        } catch {}
-      }
-    }
-
-    if (s.moved) {
-      // prevent page scroll while dragging chips (mobile)
-      e.preventDefault?.();
-      el.scrollLeft = s.startScroll - dx;
-    }
-  }
-
-  function onChipPointerUp(e) {
-    const s = chipDragRef.current;
-    if (!s.active || s.pointerId !== e.pointerId) return;
-
-    const el = e.currentTarget;
-    if (s.captured) {
-      try {
-        el.releasePointerCapture(e.pointerId);
-      } catch {}
-    }
-
-    chipDragRef.current = {
-      active: false,
-      pointerId: null,
-      startX: 0,
-      startScroll: 0,
-      moved: false,
-      captured: false,
-    };
-
-    // next tick: allow clicks again
-    setTimeout(() => {
-      ignoreChipClickRef.current = false;
-    }, 0);
-  }
-
-  function onChipWheel(e) {
-    // vertical wheel => horizontal scroll
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      e.currentTarget.scrollLeft += e.deltaY;
-    }
-  }
-
-  function toggleTag(t) {
-    // ✅ अगर drag हुआ है तो chip click ignore
-    if (ignoreChipClickRef.current) return;
-
-    if (t === "All") {
-      setActiveTags([]);
-      return;
-    }
-
-    setActiveTags((prev) => {
-      const has = prev.includes(t);
-      if (has) return prev.filter((x) => x !== t);
-      return [...prev, t];
-    });
-  }
-
-  // ✅ FILTER LIST
-  const list = useMemo(() => {
-    let out = baseList;
-
-    // 1) Multi chip filter (AND)
-    if (enableFilters && activeTags.length > 0) {
-      out = out.filter((p) =>
-        activeTags.every((t) => (p.tags || []).includes(t))
-      );
-    }
-
-    // 2) Search
-    if (enableSearch) {
-      const raw = query.trim();
-      if (!raw) return out;
-
-      const tagHit = queryAsKnownTag(raw, knownTagSet);
-
-      // ✅ अगर random 1-letter/unknown input है तो ZERO results (as you asked)
-      if (!tagHit && raw.length < 2) return [];
-
-      // ✅ if query is a known tag => TAG-ONLY match (prevents CSS matching Tailwind CSS)
-      if (tagHit) {
-        return out.filter((p) => (p.tags || []).includes(tagHit));
-      }
-
-      const qNorm = normText(raw);
-      const tokens = qNorm.split(" ").filter((t) => t.length >= 2);
-
-      // ✅ no valid tokens => ZERO results (not all projects)
-      if (tokens.length === 0) return [];
-
-      return out.filter((p) => {
-        const title = normText(p.title || "");
-        const desc = normText(p.description || "");
-        const hay = `${title} ${desc}`.trim();
-
-        const pTagKeys = (p.tags || []).map((t) => tagKey(t));
-
-        // AND across tokens (more accurate)
-        return tokens.every((tok) => {
-          if (hay.includes(tok)) return true;
-
-          for (const k of pTagKeys) {
-            if (fuzzyTokenMatch(tok, k)) return true;
-          }
-
-          return false;
-        });
-      });
-    }
-
-    return out;
-  }, [baseList, enableFilters, activeTags, enableSearch, query, knownTagSet]);
 
   const heading = isHome
     ? {
@@ -809,104 +309,20 @@ export default function ProjectsSection({
           </Reveal>
         </Parallax>
 
-        {enableFilters ? (
-          <div className="mt-6">
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-background to-transparent" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent" />
-
-              <div
-                className="no-scrollbar flex gap-2 overflow-x-auto pb-3"
-                onPointerDown={onChipPointerDown}
-                onPointerMove={onChipPointerMove}
-                onPointerUp={onChipPointerUp}
-                onPointerCancel={onChipPointerUp}
-                onWheel={onChipWheel}
-                // ✅ if drag happened, kill click at container level too
-                onClickCapture={(e) => {
-                  if (ignoreChipClickRef.current) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }
-                }}
-              >
-                {allTags.map((t) => {
-                  // const active =
-                  //   t === "All"
-                  //     ? activeTags.length === 0
-                  //     : activeTags.includes(t);
-                  const isSearching = enableSearch && query.trim().length > 0;
-
-                  const active =
-                    t === "All"
-                      ? !isSearching && activeTags.length === 0 // ✅ search me All bhi inactive
-                      : activeTags.includes(t);
-                  return (
-                    <FilterChip
-                      key={t}
-                      active={active}
-                      onClick={() => toggleTag(t)}
-                    >
-                      {t}
-                    </FilterChip>
-                  );
-                })}
-              </div>
-            </div>
-
-            <p className="mt-2 text-xs text-muted/60">
-              Showing <span className="text-foreground/85">{list.length}</span>{" "}
-              project
-              {list.length === 1 ? "" : "s"}
-              {activeTags.length > 0 ? (
-                <>
-                  {" "}
-                  in{" "}
-                  <span className="text-foreground/85">
-                    {activeTags.join(", ")}
-                  </span>
-                </>
-              ) : null}
-              {enableSearch && query.trim() ? (
-                <>
-                  {" "}
-                  for{" "}
-                  <span className="text-foreground/85">“{query.trim()}”</span>
-                </>
-              ) : null}
-            </p>
-          </div>
-        ) : null}
-
-        {enableSearch ? (
-          // <SearchBar
-          //   value={query}
-          //   onChange={setQuery}
-          //   onClear={() => setQuery("")}
-          //   inputRef={searchRef}
-          // />
-          <SearchBar
-            value={query}
-            onChange={(val) => {
-              setQuery(val);
-
-              // ✅ typing starts => reset chips to All
-              if (val.trim()) setActiveTags([]);
-            }}
-            onClear={() => {
-              setQuery("");
-              // optional: clear chips too (All)
-              // setActiveTags([]);
-            }}
-            inputRef={searchRef}
+        {/* ✅ NEW: Pro Search + Chips (only on Projects page, not home) */}
+        {!isHome ? (
+          <ProjectsSearchPro
+            ref={searchProRef}
+            enableFilters={enableFilters}
+            enableSearch={enableSearch}
+            syncToUrl={syncToUrl}
+            onResults={(results) => setList(results)}
           />
         ) : null}
 
         <AnimatePresence mode="popLayout">
           <motion.div
-            key={`${enableFilters ? activeTags.join("|") || "all" : "grid"}|${
-              enableSearch ? query : ""
-            }`}
+            key={`${list.length}`}
             initial={{ opacity: 0, y: 8, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -8, filter: "blur(10px)" }}
@@ -920,34 +336,47 @@ export default function ProjectsSection({
         </AnimatePresence>
 
         {list.length === 0 ? (
-          <div className="mt-10 rounded-3xl border border-border/12 bg-foreground/[0.03] p-8 text-center">
-            <p className="text-lg font-semibold text-foreground">
-              No projects found
-            </p>
-            <p className="mt-2 text-sm text-muted/60">
-              Try a different keyword or choose another filter.
-            </p>
+          // <div className="mt-10 rounded-3xl border border-border/12 bg-foreground/[0.03] p-8 text-center">
+          //   <p className="text-lg font-semibold text-foreground">
+          //     No projects found
+          //   </p>
+          //   <p className="mt-2 text-sm text-muted/60">
+          //     Try a different keyword or choose another filter.
+          //   </p>
+          // </div>
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
+            <button
+              onClick={() => {
+                searchProRef.current?.clearFilters?.();
+                setList(baseList);
+              }}
+              className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
+              type="button"
+            >
+              Clear filters
+            </button>
 
-            <div className="mt-5 flex justify-center gap-3">
-              {enableFilters ? (
-                <button
-                  onClick={() => setActiveTags([])}
-                  className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
-                  type="button"
-                >
-                  Reset filters
-                </button>
-              ) : null}
-              {enableSearch ? (
-                <button
-                  onClick={() => setQuery("")}
-                  className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
-                  type="button"
-                >
-                  Clear search
-                </button>
-              ) : null}
-            </div>
+            <button
+              onClick={() => {
+                searchProRef.current?.clearSearch?.();
+                setList(baseList);
+              }}
+              className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
+              type="button"
+            >
+              Clear search
+            </button>
+
+            <button
+              onClick={() => {
+                searchProRef.current?.resetAll?.();
+                setList(baseList);
+              }}
+              className="rounded-xl border border-border/15 bg-foreground/[0.03] px-4 py-2 text-sm text-foreground/80 hover:bg-foreground/[0.06]"
+              type="button"
+            >
+              Reset all
+            </button>
           </div>
         ) : null}
 

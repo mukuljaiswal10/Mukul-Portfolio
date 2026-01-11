@@ -16,7 +16,7 @@ function formatDate(d) {
 export default function BlogCard({ post }) {
   return (
     <Link
-      href={`/blog/${post.slug}`}
+     href={`/blog/${encodeURIComponent(post.slug)}`}
       className={[
         "group relative overflow-hidden rounded-2xl border border-border/12 bg-foreground/[0.02]",
         "hover:border-[#E7C266]/25 hover:bg-foreground/[0.03]",
