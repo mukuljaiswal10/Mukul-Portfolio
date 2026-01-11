@@ -556,7 +556,7 @@ function loadProjectDetailMap() {
         // (This file exists in your repo: src/data/projectDetail.js)
         // We import dynamically so build stays safe even if structure changes.
         // NOTE: In Next route, dynamic import is allowed.
-        return import("@/data/projectDetail").then((mod) => {
+        return import("@/data/projectDetails").then((mod) => {
             const candidates = [
                 mod.projectDetailsBySlug,
                 mod.projectDetails,
