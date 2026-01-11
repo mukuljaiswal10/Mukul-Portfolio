@@ -131,8 +131,7 @@ export default function NewsletterForm() {
               type="submit"
               disabled={!emailValid || loading}
               className={[
-                "relative overflow-hidden rounded-2xl px-5 py-3 text-sm font-medium",
-                "border border-[#E7C266]/25 bg-[#E7C266]/[0.10] text-[#E7C266]",
+                "relative overflow-hidden rounded-2xl px-5 py-3 text-sm font-medium","border border-[#E7C266]/25 bg-[#E7C266]/[0.10] text-[#E7C266]",
                 "hover:bg-[#E7C266]/[0.16] hover:border-[#E7C266]/40 transition",
                 "disabled:cursor-not-allowed disabled:opacity-60",
                 "sm:min-w-[170px]",
